@@ -1,0 +1,34 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+simulator:
+  config:
+    messagePath: "messages/kod-message.json"
+    # Message type for options see CborMessageType enum
+    cborMessageType: CBOR
+    invalidCbor: "B36249441B000313"
+    # flag used for switching between local and remote testing
+    localTesting: false
+    # flag used for switching between string and byte cbor messages
+    sendCborAsString: false
+    # flag used for switching between coap and coaps (dtls)
+    useDtls: true
+    # message format to be used: JSON_DEMO, JSON_AD, JSON_CP, CBOR, or INVALID_CBOR
+    messageFormat: CBOR
+    # port used for coap
+    port: 55683
+    # port used for coaps (dtls)
+    dtlsPort: 55684
+    # host used for local testing
+    localHost: localhost
+    # host used for remote testing
+    remoteHost: 18.184.44.224
+    # coap resource path
+    path: poc
+    # pre-shared key for coaps (dtls)
+    #    pskIdentity: coap_simulator
+    #    pskKey: coaps_secret_key
+    pskIdentity: 867787050253370
+    pskKey: ABCDEFGHIJKLMNOP
