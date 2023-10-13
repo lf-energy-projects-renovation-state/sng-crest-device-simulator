@@ -6,11 +6,10 @@ management:
 simulator:
   config:
     messagePath: "messages/kod-message.json"
-    # Message type for options see CborMessageType enum
-    cborMessageType: CBOR
-    invalidCbor: "B36249441B000313"
+    # Simulator will produce valid/invalid CBOR messages
+    produceValidCbor: true
     # flag used for switching between local and remote testing
-    localTesting: false
+    localTesting: true
     # flag used for switching between string and byte cbor messages
     sendCborAsString: false
     # flag used for switching between coap and coaps (dtls)

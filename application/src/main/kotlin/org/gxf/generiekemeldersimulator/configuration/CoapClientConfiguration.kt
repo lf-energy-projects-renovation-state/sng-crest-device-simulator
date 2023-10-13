@@ -23,7 +23,7 @@ class CoapClientConfiguration(private val configuration: Configuration, private 
         val uri = this.getUri()
         val coapClient = CoapClient(uri)
         if (this.simulatorProperties.useDtls) {
-            val dtlsConnector: DTLSConnector = this.createDtlsConnector(configuration, 0)
+            val dtlsConnector: DTLSConnector = this.createDtlsConnector(configuration)
             val endpoint = CoapEndpoint.Builder()
                     .setConfiguration(configuration)
                     .setConnector(dtlsConnector)
@@ -33,16 +33,18 @@ class CoapClientConfiguration(private val configuration: Configuration, private 
         return coapClient
     }
 
-    fun getUri(): String {
-        val protocol = if (this.simulatorProperties.useDtls) "coaps" else "coap"
-        val host: String = if (this.simulatorProperties.localTesting) this.simulatorProperties.localHost else this.simulatorProperties.remoteHost
-        val port: Int = if (this.simulatorProperties.useDtls) this.simulatorProperties.dtlsPort else this.simulatorProperties.port
-        val path: String = this.simulatorProperties.path
-        return String.format("%s://%s:%d/%s", protocol, host, port, path)
+    private fun getUri(): String {
+        with(this.simulatorProperties) {
+            val protocol = if (useDtls) "coaps" else "coap"
+            val host = if (localTesting) localHost else remoteHost
+            val port = if (useDtls) dtlsPort else port
+            val path = path
+            return String.format("%s://%s:%d/%s", protocol, host, port, path)
+        }
     }
 
-    private fun createDtlsConnector(config: Configuration, port: Int): DTLSConnector {
-        val address = InetSocketAddress(port)
+    private fun createDtlsConnector(config: Configuration): DTLSConnector {
+        val address = InetSocketAddress(0)
         val pskStore = createPskStore()
         val dtlsBuilder = DtlsConnectorConfig.builder(config)
                 .setAddress(address)
