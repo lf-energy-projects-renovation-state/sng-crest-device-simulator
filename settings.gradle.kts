@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-rootProject.name = "gxf-service-template"
+rootProject.name = "crest-device-simulator"
 
 include("application")
-include("components:avro")
-include("components:kafka")
-include("components:mqtt")

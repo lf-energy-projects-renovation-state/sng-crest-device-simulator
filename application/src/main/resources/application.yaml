@@ -1,12 +1,17 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
 simulator:
   config:
     messagePath: "messages/kod-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produceValidCbor: true
     # flag used for switching between local and remote testing
-    localTesting: true
+    localTesting: false
     # flag used for switching between coap and coaps (dtls)
-    useDtls: false
+    useDtls: true
     # port used for coap
     port: 55683
     # port used for coaps (dtls)
@@ -16,7 +21,7 @@ simulator:
     # host used for remote testing
     remoteHost: 18.184.44.224
     # coap resource path
-    path: coap-path
+    path: poc
     # pre-shared key for coaps (dtls)
     #    pskIdentity: coap_simulator
     #    pskKey: coaps_secret_key

@@ -21,7 +21,7 @@ version = System.getenv("GITHUB_REF_NAME")?.replace("/", "-")?.lowercase() ?: "d
 sonarqube {
     properties {
         property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.projectKey", "OSGP_gxf-service-template")
+        property("sonar.projectKey", "OSGP_sng-crest-device-simulator")
         property("sonar.organization", "gxf")
     }
 }
@@ -34,7 +34,7 @@ subprojects {
     apply(plugin = "eclipse")
     apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
 
-    group = "org.gxf.template"
+    group = "org.gxf.crestdevicesimulator"
     version = rootProject.version
 
     repositories {
