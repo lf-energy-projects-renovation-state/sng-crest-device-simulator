@@ -1,4 +1,4 @@
-package org.gxf.generiekemeldersimulator
+package org.gxf.crestdevicesimulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper

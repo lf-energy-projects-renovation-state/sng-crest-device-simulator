@@ -1,4 +1,4 @@
-package org.gxf.generiekemeldersimulator
+package org.gxf.crestdevicesimulator
 
 import org.eclipse.californium.core.network.CoapEndpoint
 import org.eclipse.californium.core.network.Endpoint

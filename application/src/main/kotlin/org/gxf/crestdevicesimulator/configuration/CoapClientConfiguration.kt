@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-package org.gxf.generiekemeldersimulator.configuration
+package org.gxf.crestdevicesimulator.configuration
 
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.network.CoapEndpoint
@@ -23,7 +23,7 @@ class CoapClientConfiguration(private val configuration: Configuration, private 
         val uri = this.getUri()
         val coapClient = CoapClient(uri)
         if (this.simulatorProperties.useDtls) {
-            val dtlsConnector: DTLSConnector = this.createDtlsConnector(configuration)
+            val dtlsConnector = this.createDtlsConnector()
             val endpoint = CoapEndpoint.Builder()
                     .setConfiguration(configuration)
                     .setConnector(dtlsConnector)
@@ -43,10 +43,10 @@ class CoapClientConfiguration(private val configuration: Configuration, private 
         }
     }
 
-    private fun createDtlsConnector(config: Configuration): DTLSConnector {
+    private fun createDtlsConnector(): DTLSConnector {
         val address = InetSocketAddress(0)
         val pskStore = createPskStore()
-        val dtlsBuilder = DtlsConnectorConfig.builder(config)
+        val dtlsBuilder = DtlsConnectorConfig.builder(configuration)
                 .setAddress(address)
                 .setAdvancedPskStore(pskStore)
                 .setConnectionListener(MdcConnectionListener())

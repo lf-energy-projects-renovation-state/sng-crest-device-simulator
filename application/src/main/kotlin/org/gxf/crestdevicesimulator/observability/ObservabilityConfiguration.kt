@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-package org.gxf.generiekemeldersimulator.observability
+package org.gxf.crestdevicesimulator.observability
 
 import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.aop.ObservedAspect

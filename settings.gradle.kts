@@ -2,6 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-rootProject.name = "generieke-melder-simulator"
+rootProject.name = "crest-device-simulator"
 
 include("application")

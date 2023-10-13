@@ -34,7 +34,7 @@ subprojects {
     apply(plugin = "eclipse")
     apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
 
-    group = "org.gxf.generiekemeldersimulator"
+    group = "org.gxf.crestdevicesimulator"
     version = rootProject.version
 
     repositories {

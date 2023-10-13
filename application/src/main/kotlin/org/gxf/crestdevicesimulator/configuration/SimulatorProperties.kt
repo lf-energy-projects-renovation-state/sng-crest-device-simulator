@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-package org.gxf.generiekemeldersimulator.configuration
+package org.gxf.crestdevicesimulator.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
