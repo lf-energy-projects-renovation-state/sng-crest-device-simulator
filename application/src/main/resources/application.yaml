@@ -9,7 +9,7 @@ simulator:
     # Simulator will produce valid/invalid CBOR messages
     produceValidCbor: true
     # flag used for switching between local and remote testing
-    localTesting: false
+    localTesting: true
     # flag used for switching between coap and coaps (dtls)
     useDtls: true
     # port used for coap
