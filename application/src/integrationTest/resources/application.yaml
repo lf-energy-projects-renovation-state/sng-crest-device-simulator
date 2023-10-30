@@ -6,7 +6,7 @@ simulator:
     # flag used for switching between local and remote testing
     local-testing: true
     # flag used for switching between coap and coaps (dtls)
-    use-dtls: true
+    use-dtls: false
     # port used for coap
     port: 55683
     # port used for coaps (dtls)
@@ -16,7 +16,7 @@ simulator:
     # host used for remote testing
     remote-host: 18.184.44.224
     # coap resource path
-    path: "sng"
+    path: "coap-path"
     # pre-shared key for coaps (dtls)
     #    pskIdentity: coap_simulator
     #    pskKey: coaps_secret_key
