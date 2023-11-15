@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service
 import java.io.IOException
 
 @Service
-class Simulator(private val simulatorProperties: SimulatorProperties,
-                private val coapClient: CoapClient) {
+class Simulator(
+        private val simulatorProperties: SimulatorProperties,
+        private val coapClient: CoapClient,
+        private val responseHandler: ResponseHandler) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -44,6 +46,7 @@ class Simulator(private val simulatorProperties: SimulatorProperties,
     private fun request(request: Request) {
         try {
             val response = coapClient.advanced(request)
+            responseHandler.handleResponse(String(response.payload))
             logger.info { "RESPONSE $response" }
         } catch (e: ConnectorException) {
             e.printStackTrace()

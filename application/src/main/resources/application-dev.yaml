@@ -1,3 +1,13 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5433/crest-device-simulator"
+    username: "postgres"
+    password: "1234"
+  jpa:
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+
 simulator:
   config:
     message-path: "messages/kod-message.json"

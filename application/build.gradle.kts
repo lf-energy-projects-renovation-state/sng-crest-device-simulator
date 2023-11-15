@@ -15,6 +15,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api")
+    implementation("org.postgresql:postgresql:42.5.4")
+    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.1.5")
 
     runtimeOnly("org.springframework:spring-aspects")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
