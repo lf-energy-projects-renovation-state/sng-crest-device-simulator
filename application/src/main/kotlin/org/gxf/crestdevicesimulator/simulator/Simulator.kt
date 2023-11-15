@@ -46,7 +46,7 @@ class Simulator(
     private fun request(request: Request) {
         try {
             val response = coapClient.advanced(request)
-            responseHandler.handleResponse(String(response.payload))
+            responseHandler.handleResponse(response)
             logger.info { "RESPONSE $response" }
         } catch (e: ConnectorException) {
             e.printStackTrace()
