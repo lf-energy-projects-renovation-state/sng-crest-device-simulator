@@ -11,6 +11,7 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.coap.Request
 import org.eclipse.californium.elements.exception.ConnectorException
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
+import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
 import org.springframework.core.io.ClassPathResource
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
