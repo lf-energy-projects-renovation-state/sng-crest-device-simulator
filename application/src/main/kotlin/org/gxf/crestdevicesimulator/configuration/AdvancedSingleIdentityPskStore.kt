@@ -22,9 +22,8 @@ class AdvancedSingleIdentityPskStore(private val identity: String) : AdvancedPsk
 
     var key: String = ""
 
-    override fun hasEcdhePskSupported(): Boolean {
-        return true
-    }
+    override fun hasEcdhePskSupported() = true
+
 
     override fun requestPskSecretResult(cid: ConnectionId?, serverName: ServerNames?, identity: PskPublicInformation, hmacAlgorithm: String?, otherSecret: SecretKey?, seed: ByteArray?, useExtendedMasterSecret: Boolean): PskSecretResult {
         if (key.isEmpty()) {
@@ -33,9 +32,8 @@ class AdvancedSingleIdentityPskStore(private val identity: String) : AdvancedPsk
         return PskSecretResult(cid, identity, SecretUtil.create(key.toByteArray(), ALGORITHM))
     }
 
-    override fun getIdentity(peerAddress: InetSocketAddress?, virtualHost: ServerNames?): PskPublicInformation {
-        return PskPublicInformation(identity)
-    }
+    override fun getIdentity(peerAddress: InetSocketAddress?, virtualHost: ServerNames?) = PskPublicInformation(identity)
+
 
     override fun setResultHandler(resultHandler: HandshakeResultHandler?) {
         // No async handler is used, so no implementation needed

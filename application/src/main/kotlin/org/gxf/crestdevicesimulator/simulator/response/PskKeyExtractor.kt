@@ -5,11 +5,14 @@ import org.springframework.stereotype.Component
 @Component
 class PskKeyExtractor {
 
+    private val pskCommandRegex = "(?<=PSK:).{16}".toRegex()
+    private val pskSetCommandRegex = "(?<=PSK:).{16}SET".toRegex()
+
     fun hasPskCommand(command: String): Boolean {
-        return command.contains("(?s)(?<=PSK:).{16}SET".toRegex())
+        return command.contains(pskCommandRegex) && command.contains(pskSetCommandRegex)
     }
 
     fun extractKeyFromCommand(command: String): String {
-        return "(?s)(?<=PSK:).{16}".toRegex().findAll(command).first().value
+        return pskCommandRegex.findAll(command).first().value
     }
 }
