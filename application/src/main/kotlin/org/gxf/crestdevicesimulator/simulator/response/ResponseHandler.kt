@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Contributors to the GXF project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.gxf.crestdevicesimulator.simulator.response
 
 import mu.KotlinLogging
@@ -32,7 +36,7 @@ class ResponseHandler(private val simulatorProperties: SimulatorProperties,
 
         logger.info { "Setting psk $newPsk for ${simulatorProperties.pskIdentity}" }
 
-        pskRepository.save(current.get().apply { key = newPsk })
+        pskRepository.save(current.get().apply { preSharedKey = newPsk })
         pskStore.key = newPsk
     }
 }

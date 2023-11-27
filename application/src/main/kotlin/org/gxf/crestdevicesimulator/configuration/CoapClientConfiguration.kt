@@ -11,7 +11,7 @@ import org.eclipse.californium.scandium.DTLSConnector
 import org.eclipse.californium.scandium.MdcConnectionListener
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig
 import org.eclipse.californium.scandium.dtls.ProtocolVersion
-import org.gxf.crestdevicesimulator.simulator.data.entity.Psk
+import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.springframework.context.annotation.Bean
 import java.net.InetSocketAddress
@@ -22,7 +22,7 @@ class CoapClientConfiguration(private val configuration: Configuration,
                               private val pskRepository: PskRepository) {
 
     @Bean
-    fun getClient(dtlsConnector: DTLSConnector): CoapClient {
+    fun coapClient(dtlsConnector: DTLSConnector): CoapClient {
         val uri = this.getUri()
         val coapClient = CoapClient(uri)
         if (this.simulatorProperties.useDtls) {
@@ -63,11 +63,11 @@ class CoapClientConfiguration(private val configuration: Configuration,
         val savedKey = pskRepository.findById(simulatorProperties.pskIdentity)
 
         if (savedKey.isEmpty) {
-            val initialPsk = Psk(simulatorProperties.pskIdentity, simulatorProperties.pskKey)
-            pskRepository.save(initialPsk)
+            val initialPreSharedKey = PreSharedKey(simulatorProperties.pskIdentity, simulatorProperties.pskKey)
+            pskRepository.save(initialPreSharedKey)
             store.key = simulatorProperties.pskKey
         } else {
-            store.key = savedKey.get().key
+            store.key = savedKey.get().preSharedKey
         }
 
         return store

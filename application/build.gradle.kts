@@ -7,17 +7,18 @@ plugins {
 }
 
 dependencies {
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.eclipse.californium:californium-core:3.8.0")
-    implementation("org.eclipse.californium:scandium:3.8.0")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    implementation(libs.bundles.californium)
+    implementation(libs.bundles.data)
+    implementation(libs.logging)
+
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api")
-    implementation("org.postgresql:postgresql:42.5.4")
-    implementation("org.flywaydb:flyway-core:9.22.3")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.1.5")
 
     runtimeOnly("org.springframework:spring-aspects")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -49,12 +50,11 @@ testing {
             dependencies {
                 implementation(project())
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
-                implementation("org.eclipse.californium:californium-core:3.8.0")
-                implementation("org.eclipse.californium:scandium:3.8.0")
+                implementation.bundle(libs.bundles.californium)
                 implementation("org.awaitility:awaitility")
                 implementation("org.springframework.boot:spring-boot-starter-test")
-                implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.1.5")
-                runtimeOnly("com.h2database:h2:2.2.224")
+                implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+                runtimeOnly(integrationTestLibs.h2)
             }
         }
     }
