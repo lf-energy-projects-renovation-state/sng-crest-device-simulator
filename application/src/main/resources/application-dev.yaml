@@ -1,6 +1,6 @@
 simulator:
   config:
-    message-path: "messages/kod-message.json"
+    message-path: "messages/kod-alarm-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
     # flag used for switching between local and remote testing
