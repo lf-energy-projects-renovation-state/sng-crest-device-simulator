@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Contributors to the GXF project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package org.gxf.crestdevicesimulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -12,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.io.ClassPathResource
 import java.time.Duration
-
 
 @SpringBootTest
 class SimulatorIntegrationTest {

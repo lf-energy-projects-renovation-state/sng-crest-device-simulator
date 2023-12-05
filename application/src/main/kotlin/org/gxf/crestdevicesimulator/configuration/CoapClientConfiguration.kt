@@ -11,19 +11,21 @@ import org.eclipse.californium.scandium.DTLSConnector
 import org.eclipse.californium.scandium.MdcConnectionListener
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig
 import org.eclipse.californium.scandium.dtls.ProtocolVersion
-import org.eclipse.californium.scandium.dtls.pskstore.AdvancedSinglePskStore
+import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
+import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.springframework.context.annotation.Bean
 import java.net.InetSocketAddress
 
 @org.springframework.context.annotation.Configuration
-class CoapClientConfiguration(private val configuration: Configuration, private val simulatorProperties: SimulatorProperties) {
+class CoapClientConfiguration(private val configuration: Configuration,
+                              private val simulatorProperties: SimulatorProperties,
+                              private val pskRepository: PskRepository) {
 
     @Bean
-    fun getClient(): CoapClient {
+    fun coapClient(dtlsConnector: DTLSConnector): CoapClient {
         val uri = this.getUri()
         val coapClient = CoapClient(uri)
         if (this.simulatorProperties.useDtls) {
-            val dtlsConnector = this.createDtlsConnector()
             val endpoint = CoapEndpoint.Builder()
                     .setConfiguration(configuration)
                     .setConnector(dtlsConnector)
@@ -43,19 +45,31 @@ class CoapClientConfiguration(private val configuration: Configuration, private 
         }
     }
 
-    private fun createDtlsConnector(): DTLSConnector {
+    @Bean
+    fun dtlsConnector(advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore): DTLSConnector {
         val address = InetSocketAddress(0)
-        val pskStore = createPskStore()
         val dtlsBuilder = DtlsConnectorConfig.builder(configuration)
                 .setAddress(address)
-                .setAdvancedPskStore(pskStore)
+                .setAdvancedPskStore(advancedSingleIdentityPskStore)
                 .setConnectionListener(MdcConnectionListener())
                 .setProtocolVersionForHelloVerifyRequests(ProtocolVersion.VERSION_DTLS_1_2)
                 .build()
         return DTLSConnector(dtlsBuilder)
     }
 
-    private fun createPskStore(): AdvancedSinglePskStore {
-        return AdvancedSinglePskStore(this.simulatorProperties.pskIdentity, this.simulatorProperties.pskKey.toByteArray())
+    @Bean
+    fun pskStore(): AdvancedSingleIdentityPskStore {
+        val store = AdvancedSingleIdentityPskStore(simulatorProperties.pskIdentity)
+        val savedKey = pskRepository.findById(simulatorProperties.pskIdentity)
+
+        if (savedKey.isEmpty) {
+            val initialPreSharedKey = PreSharedKey(simulatorProperties.pskIdentity, simulatorProperties.pskKey)
+            pskRepository.save(initialPreSharedKey)
+            store.key = simulatorProperties.pskKey
+        } else {
+            store.key = savedKey.get().preSharedKey
+        }
+
+        return store
     }
 }

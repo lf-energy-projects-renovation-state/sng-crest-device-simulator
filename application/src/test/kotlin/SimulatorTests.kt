@@ -6,6 +6,7 @@ import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.Simulator
+import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +26,9 @@ class SimulatorTests {
 
     @Mock
     private lateinit var coapClient: CoapClient
+
+    @Mock
+    private lateinit var responseHandler: ResponseHandler
 
     @InjectMocks
     private lateinit var simulator: Simulator
