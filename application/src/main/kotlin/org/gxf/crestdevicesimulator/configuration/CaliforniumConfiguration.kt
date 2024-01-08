@@ -26,8 +26,8 @@ class CaliforniumConfiguration(private val simulatorProperties: SimulatorPropert
     @Bean
     fun configure(): Configuration {
         return Configuration.getStandard()
-                .set(CoapConfig.COAP_PORT, simulatorProperties.port)
-                .set(CoapConfig.COAP_SECURE_PORT, simulatorProperties.dtlsPort)
+                .set(CoapConfig.COAP_PORT, simulatorProperties.uri.port)
+                .set(CoapConfig.COAP_SECURE_PORT, simulatorProperties.uri.port)
                 .set(DtlsConfig.DTLS_ROLE, DtlsRole.CLIENT_ONLY)
                 .set(DtlsConfig.DTLS_CIPHER_SUITES, listOf(CipherSuite.TLS_PSK_WITH_AES_256_CCM_8))
     }

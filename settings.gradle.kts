@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-rootProject.name = "crest-device-simulator"
+rootProject.name = "sng-crest-device-simulator"
 
 include("application")
 
@@ -14,11 +14,11 @@ dependencyResolutionManagement {
             library("californium-scandium", "org.eclipse.californium", "scandium").versionRef("californium")
             bundle("californium", listOf("californium-core", "californium-scandium"))
 
-            library("postgresql", "org.postgresql", "postgresql").version("42.5.4")
-            library("flyway", "org.flywaydb", "flyway-core").version("9.22.3")
+            library("postgresql", "org.postgresql", "postgresql").withoutVersion()
+            library("flyway", "org.flywaydb", "flyway-core").withoutVersion()
             bundle("data", listOf("postgresql", "flyway"))
 
-            library("logging", "io.github.microutils", "kotlin-logging-jvm").version("3.0.5")
+            library("logging", "io.github.oshai", "kotlin-logging-jvm").version("6.0.1")
         }
         create("integrationTestLibs") {
             library("h2", "com.h2database", "h2").version("2.2.224")

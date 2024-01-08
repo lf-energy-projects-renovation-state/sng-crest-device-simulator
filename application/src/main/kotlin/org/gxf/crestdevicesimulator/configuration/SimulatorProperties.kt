@@ -5,16 +5,11 @@
 package org.gxf.crestdevicesimulator.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import java.net.URI
 
 @ConfigurationProperties(prefix = "simulator.config")
 class SimulatorProperties(
-        val localTesting: Boolean,
-        val useDtls: Boolean,
-        val port: Int,
-        val dtlsPort: Int,
-        val localHost: String,
-        val remoteHost: String,
-        val path: String,
+        val uri: URI,
         val pskIdentity: String,
         val pskKey: String,
         val messagePath: String,
