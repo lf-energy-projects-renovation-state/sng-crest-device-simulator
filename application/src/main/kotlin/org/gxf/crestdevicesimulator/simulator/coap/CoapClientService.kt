@@ -1,6 +1,7 @@
 package org.gxf.crestdevicesimulator.simulator.coap
 
 import org.eclipse.californium.core.CoapClient
+import org.eclipse.californium.core.coap.CoAP
 import org.eclipse.californium.core.network.CoapEndpoint
 import org.eclipse.californium.elements.config.Configuration
 import org.eclipse.californium.scandium.DTLSConnector
@@ -25,30 +26,19 @@ class CoapClientService(
     }
 
     fun createCoapClient(): CoapClient {
-        val uri = this.getUri()
+        val uri = simulatorProperties.uri
         val coapClient = CoapClient(uri)
-        if (this.simulatorProperties.useDtls) {
+        if (uri.scheme == CoAP.COAP_SECURE_URI_SCHEME) {
             val endpoint = CoapEndpoint.Builder()
                     .setConfiguration(configuration)
-                    .setConnector(dtlsConnector(advancedSingleIdentityPskStore))
+                    .setConnector(createDtlsConnector(advancedSingleIdentityPskStore))
                     .build()
-
             coapClient.setEndpoint(endpoint)
         }
         return coapClient
     }
-
-    private fun getUri(): String {
-        with(this.simulatorProperties) {
-            val protocol = if (useDtls) "coaps" else "coap"
-            val host = if (localTesting) localHost else remoteHost
-            val port = if (useDtls) dtlsPort else port
-            val path = path
-            return String.format("%s://%s:%d/%s", protocol, host, port, path)
-        }
-    }
-
-    private fun dtlsConnector(advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore): DTLSConnector {
+    
+    private fun createDtlsConnector(advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore): DTLSConnector {
         val address = InetSocketAddress(0)
         val dtlsBuilder = DtlsConnectorConfig.builder(configuration)
                 .setAddress(address)
