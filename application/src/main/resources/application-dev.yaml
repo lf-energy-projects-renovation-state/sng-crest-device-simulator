@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://localhost:5433/crest-device-simulator"
+    url: "jdbc:postgresql://localhost:5434/crest_device_simulator"
     username: "postgres"
     password: "1234"
   jpa:
@@ -13,20 +13,8 @@ simulator:
     message-path: "messages/kod-alarm-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
-    # flag used for switching between local and remote testing
-    local-testing: true
-    # flag used for switching between coap and coaps (dtls)
-    use-dtls: true
-    # port used for coap
-    port: 55683
-    # port used for coaps (dtls)
-    dtls-port: 55684
-    # host used for local testing
-    local-host: localhost
-    # host used for remote testing
-    remote-host: 18.184.44.224
-    # coap resource path
-    path: "sng"
+    # Uri of the target coap server
+    uri: coaps://localhost:55684/sng
     # pre-shared key for coaps (dtls)
     #    pskIdentity: coap_simulator
     #    pskKey: coaps_secret_key

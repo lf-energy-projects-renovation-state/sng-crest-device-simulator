@@ -15,12 +15,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.io.ClassPathResource
+import java.net.URI
 import java.time.Duration
 
 @SpringBootTest
 class SimulatorIntegrationTest {
-    @Value("\${simulator.config.port}")
-    private lateinit var port: String
+    @Value("\${simulator.config.uri}")
+    private lateinit var uri: URI
 
     private lateinit var coapServer: CoapServer
     private val coapResourceStub = CoapResourceStub()
@@ -29,7 +30,7 @@ class SimulatorIntegrationTest {
     @BeforeEach
     fun setup() {
         coapServer = CoapServer(Configuration.getStandard())
-        coapServer.addEndpoint(CoapServerHelpers.createEndpoint(Configuration.getStandard(), port.toInt()))
+        coapServer.addEndpoint(CoapServerHelpers.createEndpoint(Configuration.getStandard(), uri.port))
         coapServer.add(coapResourceStub)
         coapServer.start()
     }
