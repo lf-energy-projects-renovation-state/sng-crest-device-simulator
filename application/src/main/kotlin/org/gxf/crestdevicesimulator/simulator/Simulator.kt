@@ -5,7 +5,7 @@
 package org.gxf.crestdevicesimulator.simulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.coap.Request
 import org.eclipse.californium.elements.exception.ConnectorException

@@ -4,7 +4,7 @@
 
 package org.gxf.crestdevicesimulator.simulator.response
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.eclipse.californium.core.CoapResponse
 import org.gxf.crestdevicesimulator.configuration.AdvancedSingleIdentityPskStore
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties

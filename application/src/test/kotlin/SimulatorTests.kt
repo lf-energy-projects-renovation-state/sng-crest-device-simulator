@@ -48,7 +48,7 @@ class SimulatorTests {
         simulator.sendPostMessage()
 
         Mockito.verify(coapClient).advanced(argument.capture())
-        Assertions.assertEquals(CborFactory.invalidCborMessage, argument.value.payloadString)
+        Assertions.assertEquals(CborFactory.INVALID_CBOR_MESSAGE, argument.value.payloadString)
     }
 
     @Test

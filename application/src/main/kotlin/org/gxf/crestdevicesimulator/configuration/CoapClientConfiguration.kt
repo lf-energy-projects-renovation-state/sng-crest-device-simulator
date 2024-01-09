@@ -10,8 +10,7 @@ import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.springframework.context.annotation.Bean
 
 @org.springframework.context.annotation.Configuration
-class CoapClientConfiguration(private val configuration: Configuration,
-                              private val simulatorProperties: SimulatorProperties,
+class CoapClientConfiguration(private val simulatorProperties: SimulatorProperties,
                               private val pskRepository: PskRepository) {
 
     @Bean

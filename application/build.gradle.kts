@@ -31,7 +31,7 @@ dependencies {
 }
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootBuildImage> {
-    imageName.set("ghcr.io/osgp/gxf-service-template:${version}")
+    imageName.set("ghcr.io/osgp/sng-crest-device-simulator:${version}")
     if (project.hasProperty("publishImage")) {
         publish.set(true)
         docker {
