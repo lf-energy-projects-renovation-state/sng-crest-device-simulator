@@ -6,11 +6,11 @@ package org.gxf.crestdevicesimulator.simulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.coap.Request
 import org.eclipse.californium.elements.exception.ConnectorException
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
+import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
 import org.springframework.core.io.ClassPathResource
 import org.springframework.scheduling.annotation.Scheduled
@@ -20,7 +20,7 @@ import java.io.IOException
 @Service
 class Simulator(
         private val simulatorProperties: SimulatorProperties,
-        private val coapClient: CoapClient,
+        private val coapClientService: CoapClientService,
         private val responseHandler: ResponseHandler) {
 
     private val logger = KotlinLogging.logger {}
@@ -46,8 +46,10 @@ class Simulator(
 
     private fun request(request: Request) {
         try {
+            val coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
             responseHandler.handleResponse(response)
+            coapClientService.shutdownCoapClient(coapClient)
             logger.info { "RESPONSE $response" }
         } catch (e: ConnectorException) {
             e.printStackTrace()

@@ -6,15 +6,17 @@ import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.Simulator
+import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.util.ResourceUtils
 
@@ -28,6 +30,9 @@ class SimulatorTests {
     private lateinit var coapClient: CoapClient
 
     @Mock
+    private lateinit var coapClientService: CoapClientService
+
+    @Mock
     private lateinit var responseHandler: ResponseHandler
 
     @InjectMocks
@@ -35,33 +40,34 @@ class SimulatorTests {
 
     @BeforeEach
     fun setup() {
-        Mockito.`when`(coapClient.advanced(Mockito.any())).thenReturn(Mockito.mock(CoapResponse::class.java))
-        Mockito.`when`(simulatorProperties.messagePath).thenReturn("test-file.json")
+        `when`(coapClient.advanced(any())).thenReturn(mock(CoapResponse::class.java))
+        `when`(simulatorProperties.messagePath).thenReturn("test-file.json")
+        `when`(coapClientService.createCoapClient()).thenReturn(coapClient)
     }
 
 
     @Test
     fun shouldSendInvalidCborWhenTheMessageTypeIsInvalidCbor() {
-        Mockito.`when`(simulatorProperties.produceValidCbor).thenReturn(false)
+        `when`(simulatorProperties.produceValidCbor).thenReturn(false)
         val argument = ArgumentCaptor.forClass(Request::class.java)
 
         simulator.sendPostMessage()
 
-        Mockito.verify(coapClient).advanced(argument.capture())
-        Assertions.assertEquals(CborFactory.INVALID_CBOR_MESSAGE, argument.value.payloadString)
+        verify(coapClient).advanced(argument.capture())
+        assertEquals(CborFactory.INVALID_CBOR_MESSAGE, argument.value.payloadString)
     }
 
     @Test
     fun shouldSendCborFromConfiguredJsonFileWhenTheMessageTypeIsCbor() {
-        Mockito.`when`(simulatorProperties.produceValidCbor).thenReturn(true)
+        `when`(simulatorProperties.produceValidCbor).thenReturn(true)
 
         val fileToUse = ResourceUtils.getFile("classpath:test-file.json")
         val argument = ArgumentCaptor.forClass(Request::class.java)
 
         simulator.sendPostMessage()
-        Mockito.verify(coapClient).advanced(argument.capture())
+        verify(coapClient).advanced(argument.capture())
 
         val expected = CBORMapper().writeValueAsBytes(ObjectMapper().readTree(fileToUse))
-        Assertions.assertArrayEquals(expected, argument.value.payload)
+        assertArrayEquals(expected, argument.value.payload)
     }
 }
