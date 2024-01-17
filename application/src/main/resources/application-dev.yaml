@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://localhost:5434/crest_device_simulator"
+    url: "jdbc:postgresql://localhost:5432/crest_device_simulator"
     username: "postgres"
     password: "1234"
   jpa:
