@@ -4,7 +4,6 @@
 
 package org.gxf.crestdevicesimulator.configuration
 
-import org.eclipse.californium.elements.config.Configuration
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.springframework.context.annotation.Bean
@@ -19,7 +18,7 @@ class CoapClientConfiguration(private val simulatorProperties: SimulatorProperti
         val savedKey = pskRepository.findById(simulatorProperties.pskIdentity)
 
         if (savedKey.isEmpty) {
-            val initialPreSharedKey = PreSharedKey(simulatorProperties.pskIdentity, simulatorProperties.pskKey)
+            val initialPreSharedKey = PreSharedKey(simulatorProperties.pskIdentity, simulatorProperties.pskKey, simulatorProperties.pskSecret)
             pskRepository.save(initialPreSharedKey)
             store.key = simulatorProperties.pskKey
         } else {

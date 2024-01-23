@@ -20,3 +20,4 @@ simulator:
     #    pskKey: coaps_secret_key
     psk-identity: 867787050253370
     psk-key: ABCDEFGHIJKLMNOP
+    psk-secret: "123456"

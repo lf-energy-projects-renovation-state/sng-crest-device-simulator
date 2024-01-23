@@ -12,6 +12,7 @@ class SimulatorProperties(
         val uri: URI,
         val pskIdentity: String,
         val pskKey: String,
+        val pskSecret: String,
         val messagePath: String,
         val produceValidCbor: Boolean,
 )
