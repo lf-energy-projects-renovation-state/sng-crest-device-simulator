@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Test
 class PreSharedKeyKeyExtractorTest {
 
     private val pskKeyExtractor = PskKeyExtractor()
+    private val testHash = "1234567890123456123456789012345612345678901234561234567890123456"
 
-    private val validPskCommand = "PSK:1234567891234567;PSK:1234567891234567SET"
-    private val validPskCommandWithKeyWordsInKey = "PSK:PSKaSET1PSKd2SET;PSK:PSKaSET1PSKd2SETSET"
-    private val invalidKeySizePskCommand = "PSK:1234;PSK:1234SET"
+    private val validPskCommand = "PSK:1234567891234567${testHash};PSK:1234567891234567${testHash}SET!"
+    private val validPskCommandWithKeyWordsInKey = "PSK:PSKaSET1PSKd2SET${testHash};PSK:PSKaSET1PSKd2SET${testHash}SET!"
+    private val invalidKeySizePskCommand = "PSK:1234${testHash};PSK:1234${testHash}SET!"
     private val notPskCommand = "NoPskCommandInThisString"
 
 
