@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class PskKeyExtractor {
 
-    private val pskCommandVerificationRegex = "PSK:[a-zA-Z0-9]{16}[a-zA-Z0-9]{64};PSK:[a-zA-Z0-9]{16}[a-zA-Z0-9]{64}SET!".toRegex()
+    private val pskCommandVerificationRegex = "!PSK:[a-zA-Z0-9]{16}[a-zA-Z0-9]{64};PSK:[a-zA-Z0-9]{16}[a-zA-Z0-9]{64}SET".toRegex()
 
     /**
      * Regex to split a valid PSK set command in 3 groups
