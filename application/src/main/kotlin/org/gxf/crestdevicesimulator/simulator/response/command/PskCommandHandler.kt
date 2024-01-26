@@ -16,14 +16,13 @@ import org.springframework.stereotype.Service
 @Service
 class PskCommandHandler(private val pskRepository: PskRepository,
                         private val simulatorProperties: SimulatorProperties,
-                        private val pskKeyExtractor: PskKeyExtractor,
                         private val pskStore: AdvancedSingleIdentityPskStore) {
 
     private val logger = KotlinLogging.logger {}
 
     fun handlePskChange(body: String) {
-        val newPsk = pskKeyExtractor.extractKeyFromCommand(body)
-        val hash = pskKeyExtractor.extractHashFromCommand(body)
+        val newPsk = PskKeyExtractor.extractKeyFromCommand(body)
+        val hash = PskKeyExtractor.extractHashFromCommand(body)
 
         val preSharedKeyOptional = pskRepository.findById(simulatorProperties.pskIdentity)
 
@@ -32,13 +31,13 @@ class PskCommandHandler(private val pskRepository: PskRepository,
         }
 
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
-        
+
         val preSharedKey = preSharedKeyOptional.get()
         val secret = preSharedKey.secret
-        val expectedHash = DigestUtils.sha256Hex("${secret}${newPsk}")
+        val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
-            throw PskHashNotValidException()
+            throw PskHashNotValidException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
         pskRepository.save(preSharedKey.apply { this.preSharedKey = newPsk })

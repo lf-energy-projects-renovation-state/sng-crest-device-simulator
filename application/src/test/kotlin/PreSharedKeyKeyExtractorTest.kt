@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 
 class PreSharedKeyKeyExtractorTest {
 
-    private val pskKeyExtractor = PskKeyExtractor()
     private val testHash = "1234567890123456123456789012345612345678901234561234567890123456"
 
     private val validPskCommand = "!PSK:1234567891234567${testHash};PSK:1234567891234567${testHash}SET"
@@ -15,10 +14,10 @@ class PreSharedKeyKeyExtractorTest {
 
     @Test
     fun shouldReturnTrueWhenThereIsAPskCommandInString() {
-        val resultValid = pskKeyExtractor.hasPskCommand(validPskCommand)
-        val resultValidWithKeyWords = pskKeyExtractor.hasPskCommand(validPskCommandWithKeyWordsInKey)
-        val resultInvalidKeySize = pskKeyExtractor.hasPskCommand(invalidKeySizePskCommand)
-        val resultNoPskCommand = pskKeyExtractor.hasPskCommand(notPskCommand)
+        val resultValid = PskKeyExtractor.hasPskCommand(validPskCommand)
+        val resultValidWithKeyWords = PskKeyExtractor.hasPskCommand(validPskCommandWithKeyWordsInKey)
+        val resultInvalidKeySize = PskKeyExtractor.hasPskCommand(invalidKeySizePskCommand)
+        val resultNoPskCommand = PskKeyExtractor.hasPskCommand(notPskCommand)
 
         assertTrue(resultValid)
         assertTrue(resultValidWithKeyWords)
@@ -28,8 +27,8 @@ class PreSharedKeyKeyExtractorTest {
 
     @Test
     fun shouldReturnPskKeyFromValidPskCommand() {
-        val resultValid = pskKeyExtractor.extractKeyFromCommand(validPskCommand)
-        val resultValidWithKeyWords = pskKeyExtractor.extractKeyFromCommand(validPskCommandWithKeyWordsInKey)
+        val resultValid = PskKeyExtractor.extractKeyFromCommand(validPskCommand)
+        val resultValidWithKeyWords = PskKeyExtractor.extractKeyFromCommand(validPskCommandWithKeyWordsInKey)
 
         assertEquals("1234567891234567", resultValid)
         assertEquals("PSKaSET1PSKd2SET", resultValidWithKeyWords)

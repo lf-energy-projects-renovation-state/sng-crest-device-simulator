@@ -9,13 +9,12 @@ import org.gxf.crestdevicesimulator.simulator.response.command.PskCommandHandler
 import org.springframework.stereotype.Component
 
 @Component
-class ResponseHandler(private val pskCommandHandler: PskCommandHandler,
-                      private val pskKeyExtractor: PskKeyExtractor) {
+class ResponseHandler(private val pskCommandHandler: PskCommandHandler) {
 
     fun handleResponse(response: CoapResponse) {
         val body = String(response.payload)
 
-        if (pskKeyExtractor.hasPskCommand(body)) {
+        if (PskKeyExtractor.hasPskCommand(body)) {
             pskCommandHandler.handlePskChange(body)
         }
     }
