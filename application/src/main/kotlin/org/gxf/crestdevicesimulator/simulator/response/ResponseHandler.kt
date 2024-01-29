@@ -14,7 +14,7 @@ class ResponseHandler(private val pskCommandHandler: PskCommandHandler) {
     fun handleResponse(response: CoapResponse) {
         val body = String(response.payload)
 
-        if (PskKeyExtractor.hasPskCommand(body)) {
+        if (PskExtractor.hasPskCommand(body)) {
             pskCommandHandler.handlePskChange(body)
         }
     }

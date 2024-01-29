@@ -4,7 +4,7 @@
 
 package org.gxf.crestdevicesimulator.simulator.response
 
-object PskKeyExtractor {
+object PskExtractor {
 
     /**
      * Regex to split a valid PSK set command in 3 groups

@@ -9,7 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.gxf.crestdevicesimulator.configuration.AdvancedSingleIdentityPskStore
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
-import org.gxf.crestdevicesimulator.simulator.response.PskKeyExtractor
+import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.exception.PskHashNotValidException
 import org.springframework.stereotype.Service
 
@@ -21,8 +21,8 @@ class PskCommandHandler(private val pskRepository: PskRepository,
     private val logger = KotlinLogging.logger {}
 
     fun handlePskChange(body: String) {
-        val newPsk = PskKeyExtractor.extractKeyFromCommand(body)
-        val hash = PskKeyExtractor.extractHashFromCommand(body)
+        val newPsk = PskExtractor.extractKeyFromCommand(body)
+        val hash = PskExtractor.extractHashFromCommand(body)
 
         val preSharedKeyOptional = pskRepository.findById(simulatorProperties.pskIdentity)
 
