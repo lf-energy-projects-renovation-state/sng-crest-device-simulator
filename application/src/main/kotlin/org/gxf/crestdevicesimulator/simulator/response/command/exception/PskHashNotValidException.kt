@@ -4,4 +4,4 @@
 
 package org.gxf.crestdevicesimulator.simulator.response.command.exception
 
-class PskHashNotValidException(override val message: String) : Exception()
+class PskHashNotValidException(message: String) : Exception(message)
