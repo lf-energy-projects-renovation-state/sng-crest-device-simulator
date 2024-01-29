@@ -1,8 +1,9 @@
-import org.gxf.crestdevicesimulator.simulator.response.PskKeyExtractor
+package org.gxf.crestdevicesimulator.simulator.response
+
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class PreSharedKeyKeyExtractorTest {
+class PskKeyExtractorTest {
 
     private val testHash = "1234567890123456123456789012345612345678901234561234567890123456"
 
