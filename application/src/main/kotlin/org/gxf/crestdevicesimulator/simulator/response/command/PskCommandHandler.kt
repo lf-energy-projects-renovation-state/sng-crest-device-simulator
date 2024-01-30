@@ -10,7 +10,7 @@ import org.gxf.crestdevicesimulator.configuration.AdvancedSingleIdentityPskStore
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
-import org.gxf.crestdevicesimulator.simulator.response.command.exception.PskHashNotValidException
+import org.gxf.crestdevicesimulator.simulator.response.command.exception.InvalidPskHashException
 import org.springframework.stereotype.Service
 
 @Service
@@ -37,7 +37,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
         val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
-            throw PskHashNotValidException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
+            throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
         pskRepository.save(preSharedKey.apply { this.preSharedKey = newPsk })

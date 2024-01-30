@@ -4,4 +4,4 @@
 
 package org.gxf.crestdevicesimulator.simulator.response.command.exception
 
-class PskHashNotValidException(message: String) : Exception(message)
+class InvalidPskHashException(message: String) : Exception(message)
