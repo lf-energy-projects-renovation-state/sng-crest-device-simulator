@@ -17,6 +17,8 @@ dependencies {
     implementation(libs.bundles.data)
     implementation(libs.logging)
 
+    implementation(libs.commonsCodec)
+
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api")
 

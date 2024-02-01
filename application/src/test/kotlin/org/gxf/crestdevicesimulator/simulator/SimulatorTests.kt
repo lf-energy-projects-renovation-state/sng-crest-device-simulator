@@ -1,11 +1,11 @@
+package org.gxf.crestdevicesimulator.simulator
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.CoapResponse
 import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
-import org.gxf.crestdevicesimulator.simulator.CborFactory
-import org.gxf.crestdevicesimulator.simulator.Simulator
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
 import org.junit.jupiter.api.Assertions.assertArrayEquals

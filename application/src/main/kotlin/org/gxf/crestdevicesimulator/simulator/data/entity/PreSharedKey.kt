@@ -8,4 +8,4 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 
 @Entity
-class PreSharedKey(@Id val identity: String, var preSharedKey: String)
+class PreSharedKey(@Id val identity: String, var preSharedKey: String, var secret: String)

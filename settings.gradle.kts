@@ -19,6 +19,8 @@ dependencyResolutionManagement {
             bundle("data", listOf("postgresql", "flyway"))
 
             library("logging", "io.github.oshai", "kotlin-logging-jvm").version("6.0.1")
+
+            library("commonsCodec", "commons-codec", "commons-codec").version("1.16.0")
         }
         create("integrationTestLibs") {
             library("h2", "com.h2database", "h2").version("2.2.224")
