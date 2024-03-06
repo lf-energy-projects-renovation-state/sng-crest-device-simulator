@@ -5,6 +5,7 @@
 package org.gxf.crestdevicesimulator.simulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.eclipse.californium.core.CoapClient
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.coap.Request
@@ -45,16 +46,18 @@ class Simulator(
     }
 
     private fun request(request: Request) {
+        var coapClient: CoapClient? = null
         try {
-            val coapClient = coapClientService.createCoapClient()
+            coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
             responseHandler.handleResponse(response)
-            coapClientService.shutdownCoapClient(coapClient)
             logger.info { "RESPONSE $response" }
         } catch (e: ConnectorException) {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
+        } finally {
+            if (coapClient != null) coapClientService.shutdownCoapClient(coapClient)
         }
     }
 }
