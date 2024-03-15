@@ -51,7 +51,7 @@ class SimulatorTests {
         `when`(simulatorProperties.produceValidCbor).thenReturn(false)
         val argument = ArgumentCaptor.forClass(Request::class.java)
 
-        simulator.sendPostMessage()
+        simulator.sendScheduledMessage()
 
         verify(coapClient).advanced(argument.capture())
         assertEquals(CborFactory.INVALID_CBOR_MESSAGE, argument.value.payloadString)
@@ -64,7 +64,7 @@ class SimulatorTests {
         val fileToUse = ResourceUtils.getFile("classpath:test-file.json")
         val argument = ArgumentCaptor.forClass(Request::class.java)
 
-        simulator.sendPostMessage()
+        simulator.sendScheduledMessage()
         verify(coapClient).advanced(argument.capture())
 
         val expected = CBORMapper().writeValueAsBytes(ObjectMapper().readTree(fileToUse))

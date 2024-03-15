@@ -19,7 +19,7 @@
   "TRY": 1,
   "MSI": 0,
   "URC": [
-    "INIT",
+    "PSK:EQER",
     {
       "DL": "0"
     }

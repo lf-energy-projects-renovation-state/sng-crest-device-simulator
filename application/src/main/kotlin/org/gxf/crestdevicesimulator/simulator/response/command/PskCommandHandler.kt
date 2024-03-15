@@ -22,41 +22,67 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
     private val logger = KotlinLogging.logger {}
 
-    fun handlePskChange(body: String) {
+    fun handlePskChange(body: String): Boolean {
         val newPsk = PskExtractor.extractKeyFromCommand(body)
         val hash = PskExtractor.extractHashFromCommand(body)
 
-        val preSharedKey = pskRepository.findLatestActivePsk(simulatorProperties.pskIdentity)
-
-        if (preSharedKey == null) {
-            logger.error { "No psk for identity: ${simulatorProperties.pskIdentity}" }
-            throw NoSuchElementException()
-        }
+        val activePreSharedKey = pskRepository.findLatestPskForIdentityWithStatus(
+            simulatorProperties.pskIdentity,
+            PreSharedKeyStatus.ACTIVE
+        )
+            ?: throw NoSuchElementException("No psk for identity: ${simulatorProperties.pskIdentity}")
 
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
 
-        val secret = preSharedKey.secret
+        val secret = activePreSharedKey.secret
         val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
             throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
-        pskRepository.save(preSharedKey.apply { this.preSharedKey = newPsk })
-        pskStore.key = newPsk
+        val newPreSharedKey = setNewKeyForIdentity(activePreSharedKey, newPsk)
+
+        pskRepository.save(newPreSharedKey)
+
+        return true
     }
 
-    fun setNewKeyForIdentity(identity: String, newKey: String): PreSharedKey {
-        val previousPSK = pskRepository.findLatestActivePsk(identity)!!
+    fun setNewKeyForIdentity(previousPSK: PreSharedKey, newKey: String): PreSharedKey {
         val newVersion = previousPSK.revision + 1
         return pskRepository.save(
             PreSharedKey(
-                identity,
+                previousPSK.identity,
                 newVersion,
                 newKey,
                 previousPSK.secret,
                 PreSharedKeyStatus.PENDING
             )
         )
+    }
+
+    fun changeActiveKey() {
+        val identity = simulatorProperties.pskIdentity
+        val currentPsk =
+            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.ACTIVE)
+        val newPsk =
+            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.PENDING)
+
+        check(currentPsk != null && newPsk != null) { "No current or new psk, impossible to change active key" }
+
+        // todo zorgen dat dit altijd allemaal of helemaal niet gebeurt
+        currentPsk.status = PreSharedKeyStatus.INACTIVE
+        newPsk.status = PreSharedKeyStatus.ACTIVE
+        pskStore.key = newPsk.preSharedKey
+    }
+
+    fun setPendingKeyAsInvalid() {
+        val identity = simulatorProperties.pskIdentity
+        val newPsk =
+            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.PENDING)
+
+        if (newPsk != null) {
+            newPsk.status = PreSharedKeyStatus.INVALID
+        }
     }
 }

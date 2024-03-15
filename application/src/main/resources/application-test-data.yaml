@@ -1,7 +1,9 @@
 
 simulator:
   config:
-    message-path: "messages/kod-alarm-message.json"
+    scheduled-message-path: "messages/kod-alarm-message.json"
+    success-message-path: "messages/kod-alarm-message.json"
+    failure-message-path: "messages/kod-alarm-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
     # pre-shared key for coaps (dtls)

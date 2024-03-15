@@ -13,6 +13,8 @@ class SimulatorProperties(
         val pskIdentity: String,
         val pskKey: String,
         val pskSecret: String,
-        val messagePath: String,
+        val scheduledMessagePath: String,
+        val successMessagePath: String,
+        val failureMessagePath: String,
         val produceValidCbor: Boolean,
 )
