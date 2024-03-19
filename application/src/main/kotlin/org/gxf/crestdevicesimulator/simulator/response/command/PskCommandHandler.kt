@@ -22,7 +22,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
     private val logger = KotlinLogging.logger {}
 
-    fun handlePskChange(body: String): Boolean {
+    fun handlePskChange(body: String): PreSharedKey {
         val newPsk = PskExtractor.extractKeyFromCommand(body)
         val hash = PskExtractor.extractHashFromCommand(body)
 
@@ -41,14 +41,10 @@ class PskCommandHandler(private val pskRepository: PskRepository,
             throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
-        val newPreSharedKey = setNewKeyForIdentity(activePreSharedKey, newPsk)
-
-        pskRepository.save(newPreSharedKey)
-
-        return true
+        return setNewKeyForIdentity(activePreSharedKey, newPsk)
     }
 
-    fun setNewKeyForIdentity(previousPSK: PreSharedKey, newKey: String): PreSharedKey {
+    private fun setNewKeyForIdentity(previousPSK: PreSharedKey, newKey: String): PreSharedKey {
         val newVersion = previousPSK.revision + 1
         return pskRepository.save(
             PreSharedKey(

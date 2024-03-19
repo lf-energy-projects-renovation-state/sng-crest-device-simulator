@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions.catchException
 import org.gxf.crestdevicesimulator.configuration.AdvancedSingleIdentityPskStore
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
+import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKeyStatus
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
 import org.gxf.crestdevicesimulator.simulator.response.command.exception.InvalidPskHashException
 import org.junit.jupiter.api.BeforeEach
@@ -17,9 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Answers
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
-import java.util.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @ExtendWith(MockitoExtension::class)
 class PskCommandHandlerTest {
@@ -44,10 +47,17 @@ class PskCommandHandlerTest {
 
     private val identity = "1234"
 
+    private val oldRevision = 0
+
+    private val newRevision = 1
+
     @BeforeEach
     fun setup() {
-        `when`(simulatorProperties.pskIdentity).thenReturn(identity)
-        `when`(pskRepository.findById(any())).thenReturn(Optional.of(PreSharedKey(identity, oldKey, secret)))
+        val psk = PreSharedKey(identity, oldRevision, oldKey, secret, PreSharedKeyStatus.ACTIVE)
+        whenever(simulatorProperties.pskIdentity).thenReturn(identity)
+        whenever(pskRepository.findLatestPskForIdentityWithStatus(any<String>(), any())).thenReturn(
+            psk
+        )
         pskStore.key = oldKey
     }
 
@@ -55,10 +65,17 @@ class PskCommandHandlerTest {
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
         val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
         val pskCommand = "!PSK:$newKey$expectedHash;PSK:$newKey${expectedHash}SET"
+        val savedPsk = PreSharedKey(
+            identity,
+            newRevision,
+            newKey,
+            secret,
+            PreSharedKeyStatus.PENDING
+        )
+        whenever(pskRepository.save(any<PreSharedKey>())).thenReturn(savedPsk)
 
-        pskCommandHandler.handlePskChange(pskCommand)
-
-        assertThat(pskStore.key).isEqualTo(newKey)
+        assertThat(pskCommandHandler.handlePskChange(pskCommand)).isEqualTo(savedPsk)
+//        assertThat(pskStore.key).isEqualTo(newKey) todo add new test for this
     }
 
     @Test

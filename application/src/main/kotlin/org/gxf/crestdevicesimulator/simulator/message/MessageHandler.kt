@@ -59,7 +59,8 @@ class MessageHandler(
         val body = String(response.payload)
 
         if (PskExtractor.hasPskCommand(body)) {
-            if (pskCommandHandler.handlePskChange(body)) {
+            try {
+                pskCommandHandler.handlePskChange(body)
                 sendSuccessMessage()
                 pskCommandHandler.changeActiveKey()
             } else {
@@ -67,6 +68,8 @@ class MessageHandler(
                 pskCommandHandler.setPendingKeyAsInvalid()
             }
         }
+
+        readyForNewMessage = true
     }
 
     private fun sendSuccessMessage() {
