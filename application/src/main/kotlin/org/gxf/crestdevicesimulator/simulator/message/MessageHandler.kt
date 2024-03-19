@@ -1,6 +1,11 @@
 package org.gxf.crestdevicesimulator.simulator.message
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.CoapResponse
@@ -20,7 +25,8 @@ import java.io.IOException
 class MessageHandler(
     private val coapClientService: CoapClientService,
     private val simulatorProperties: SimulatorProperties,
-    private val pskCommandHandler: PskCommandHandler
+    private val pskCommandHandler: PskCommandHandler,
+    private val mapper: ObjectMapper
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -56,12 +62,12 @@ class MessageHandler(
     }
 
     private fun handleResponse(response: CoapResponse) {
-        val body = String(response.payload)
+        val pskCommand = String(response.payload)
 
-        if (PskExtractor.hasPskCommand(body)) {
+        if (PskExtractor.hasPskCommand(pskCommand)) {
             try {
-                pskCommandHandler.handlePskChange(body)
-                sendSuccessMessage()
+                pskCommandHandler.handlePskChange(pskCommand)
+                sendSuccessMessage(pskCommand)
                 pskCommandHandler.changeActiveKey()
             } else {
                 sendFailureMessage()
@@ -72,11 +78,29 @@ class MessageHandler(
         readyForNewMessage = true
     }
 
-    private fun sendSuccessMessage() {
-        sendMessage(simulatorProperties.successMessagePath)
+    private fun sendSuccessMessage(pskCommand: String) {
+        val messageJsonNode =
+            ObjectMapper().readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
+        val message = updatePskCommandInMessage(messageJsonNode, pskCommand)
+        sendMessage(message)
     }
 
-    private fun sendFailureMessage() {
-        sendMessage(simulatorProperties.failureMessagePath)
+    private fun sendFailureMessage(pskCommand: String) {
+        val messageJsonNode =
+            ObjectMapper().readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
+        val pskErrorMessage = pskCommand.replace("SET", "EQER")
+        val message = updatePskCommandInMessage(messageJsonNode, pskErrorMessage)
+        sendMessage(message)
+    }
+
+    private fun updatePskCommandInMessage(jsonNode: JsonNode, pskCommand: String): JsonNode {
+        val newMessage = jsonNode as ObjectNode
+        val urcList = listOf(
+            TextNode(pskCommand),
+            ObjectNode(JsonNodeFactory.instance, mapOf("DL" to TextNode("0")))
+        )
+        val array = mapper.valueToTree<ArrayNode>(urcList)
+        newMessage.replace("URC", array)
+        return newMessage
     }
 }

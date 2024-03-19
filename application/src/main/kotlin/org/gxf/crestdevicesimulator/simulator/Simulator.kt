@@ -4,9 +4,11 @@
 
 package org.gxf.crestdevicesimulator.simulator
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.message.MessageHandler
+import org.springframework.core.io.ClassPathResource
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
