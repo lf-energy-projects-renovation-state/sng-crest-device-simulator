@@ -24,8 +24,12 @@ class Simulator(
         logger.info { "Simulator config started with config: $simulatorProperties" }
     }
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 0)
+    @Scheduled(fixedDelay = 10000, initialDelay = 0)
     fun sendScheduledMessage() {
-        messageHandler.sendMessage(simulatorProperties.scheduledMessagePath)
+        if (messageHandler.readyForNewMessage) {
+            val message =
+                ObjectMapper().readTree(ClassPathResource(simulatorProperties.scheduledMessagePath).file)
+            messageHandler.sendMessage(message)
+        }
     }
 }

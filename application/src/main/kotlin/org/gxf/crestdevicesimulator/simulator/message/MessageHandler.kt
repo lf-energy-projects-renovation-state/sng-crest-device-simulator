@@ -30,8 +30,10 @@ class MessageHandler(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun sendMessage(messagePath: String) {
-        val jsonNode = ObjectMapper().readTree(ClassPathResource(messagePath).file)
+    var readyForNewMessage = true
+
+    fun sendMessage(jsonNode: JsonNode) {
+        readyForNewMessage = false
         val payload =
             if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode) else CborFactory.createInvalidCbor()
         val request =
@@ -69,8 +71,9 @@ class MessageHandler(
                 pskCommandHandler.handlePskChange(pskCommand)
                 sendSuccessMessage(pskCommand)
                 pskCommandHandler.changeActiveKey()
-            } else {
-                sendFailureMessage()
+            } catch (e: Exception) {
+                logger.error(e) { "PSK change error, send failure message" }
+                sendFailureMessage(pskCommand)
                 pskCommandHandler.setPendingKeyAsInvalid()
             }
         }
