@@ -73,6 +73,8 @@ class PskCommandHandler(private val pskRepository: PskRepository,
         // todo zorgen dat dit altijd allemaal of helemaal niet gebeurt
         currentPsk.status = PreSharedKeyStatus.INACTIVE
         newPsk.status = PreSharedKeyStatus.ACTIVE
+        pskRepository.save(currentPsk)
+        pskRepository.save(newPsk)
         pskStore.key = newPsk.preSharedKey
     }
 
