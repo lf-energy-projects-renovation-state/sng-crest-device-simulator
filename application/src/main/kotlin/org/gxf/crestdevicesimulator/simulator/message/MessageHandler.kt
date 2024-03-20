@@ -82,6 +82,7 @@ class MessageHandler(
     }
 
     private fun sendSuccessMessage(pskCommand: String) {
+        logger.info { "Sending PSK set success message " }
         val messageJsonNode =
             ObjectMapper().readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
         val message = updatePskCommandInMessage(messageJsonNode, pskCommand)
@@ -89,6 +90,7 @@ class MessageHandler(
     }
 
     private fun sendFailureMessage(pskCommand: String) {
+        logger.info { "Sending PSK set failure message " }
         val messageJsonNode =
             ObjectMapper().readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
         val pskErrorMessage = pskCommand.replace("SET", "EQER")

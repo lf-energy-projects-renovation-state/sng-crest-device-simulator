@@ -27,6 +27,7 @@ class Simulator(
     @Scheduled(fixedDelay = 10000, initialDelay = 0)
     fun sendScheduledMessage() {
         if (messageHandler.readyForNewMessage) {
+            logger.info { "Sending scheduled alarm message " }
             val message =
                 ObjectMapper().readTree(ClassPathResource(simulatorProperties.scheduledMessagePath).file)
             messageHandler.sendMessage(message)
