@@ -30,6 +30,13 @@ class MessageHandler(
 ) {
     private val logger = KotlinLogging.logger {}
 
+    companion object {
+        private const val URC_FIELD = "URC"
+        private const val URC_PSK_SUCCESS = "PSK:SET"
+        private const val URC_PSK_ERROR = "PSK:EQER"
+        private const val DL_FIELD = "DL"
+    }
+
     fun sendMessage(jsonNode: JsonNode) {
         val payload =
             if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode) else CborFactory.createInvalidCbor()
@@ -77,30 +84,33 @@ class MessageHandler(
     }
 
     private fun sendSuccessMessage(pskCommand: String) {
-        logger.info { "Sending PSK set success message " }
+        logger.info { "Sending success message for command $pskCommand" }
         val messageJsonNode =
             ObjectMapper().readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
-        val message = updatePskCommandInMessage(messageJsonNode, pskCommand)
+        val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_SUCCESS, pskCommand)
         sendMessage(message)
     }
 
     private fun sendFailureMessage(pskCommand: String) {
-        logger.info { "Sending PSK set failure message " }
+        logger.info { "Sending failure message for command $pskCommand" }
         val messageJsonNode =
             ObjectMapper().readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
-        val pskErrorMessage = pskCommand.replace("SET", "EQER")
-        val message = updatePskCommandInMessage(messageJsonNode, pskErrorMessage)
+        val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
         sendMessage(message)
     }
 
-    private fun updatePskCommandInMessage(jsonNode: JsonNode, pskCommand: String): JsonNode {
-        val newMessage = jsonNode as ObjectNode
+    private fun updatePskCommandInMessage(
+        message: JsonNode,
+        urc: String,
+        receivedCommand: String
+    ): JsonNode {
+        val newMessage = message as ObjectNode
         val urcList = listOf(
-            TextNode(pskCommand),
-            ObjectNode(JsonNodeFactory.instance, mapOf("DL" to TextNode("0")))
+            TextNode(urc),
+            ObjectNode(JsonNodeFactory.instance, mapOf(DL_FIELD to TextNode(receivedCommand)))
         )
         val array = mapper.valueToTree<ArrayNode>(urcList)
-        newMessage.replace("URC", array)
+        newMessage.replace(URC_FIELD, array)
         return newMessage
     }
 }
