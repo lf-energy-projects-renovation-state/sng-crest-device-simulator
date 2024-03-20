@@ -52,8 +52,8 @@ class MessageHandler(
         try {
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
+            logger.info { "RESPONSE: ${String(response.payload)}" }
             handleResponse(response)
-            logger.info { "RESPONSE $response" }
         } catch (e: ConnectorException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -64,21 +64,20 @@ class MessageHandler(
     }
 
     private fun handleResponse(response: CoapResponse) {
-        val pskCommand = String(response.payload)
+        val payload = String(response.payload)
 
-        if (PskExtractor.hasPskCommand(pskCommand)) {
+        if (PskExtractor.hasPskCommand(payload)) {
             try {
-                pskCommandHandler.handlePskChange(pskCommand)
-                sendSuccessMessage(pskCommand)
+                pskCommandHandler.handlePskChange(payload)
+                sendSuccessMessage(payload)
                 pskCommandHandler.changeActiveKey()
             } catch (e: Exception) {
                 logger.error(e) { "PSK change error, send failure message" }
-                sendFailureMessage(pskCommand)
+                sendFailureMessage(payload)
                 pskCommandHandler.setPendingKeyAsInvalid()
             }
+            readyForNewMessage = true
         }
-
-        readyForNewMessage = true
     }
 
     private fun sendSuccessMessage(pskCommand: String) {
