@@ -30,10 +30,7 @@ class MessageHandler(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    var readyForNewMessage = true
-
     fun sendMessage(jsonNode: JsonNode) {
-        readyForNewMessage = false
         val payload =
             if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode) else CborFactory.createInvalidCbor()
         val request =
@@ -76,7 +73,6 @@ class MessageHandler(
                 sendFailureMessage(payload)
                 pskCommandHandler.setPendingKeyAsInvalid()
             }
-            readyForNewMessage = true
         }
     }
 
