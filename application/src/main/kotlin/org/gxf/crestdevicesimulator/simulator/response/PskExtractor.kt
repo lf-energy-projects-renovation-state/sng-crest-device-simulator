@@ -15,7 +15,7 @@ object PskExtractor {
     private val pskKeyHashSplitterRegex =
         "!PSK:([a-zA-Z0-9]{16}):([a-zA-Z0-9]{64});PSK:[a-zA-Z0-9]{16}:[a-zA-Z0-9]{64}SET".toRegex()
 
-    fun hasPskCommand(command: String) = pskKeyHashSplitterRegex.matches(command)
+    fun hasPskSetCommand(command: String) = pskKeyHashSplitterRegex.matches(command)
 
     fun extractKeyFromCommand(command: String) = pskKeyHashSplitterRegex.findAll(command).first().groups[1]!!.value
 

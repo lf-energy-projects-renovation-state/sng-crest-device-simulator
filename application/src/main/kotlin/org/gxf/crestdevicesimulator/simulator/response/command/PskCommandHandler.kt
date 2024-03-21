@@ -5,6 +5,7 @@
 package org.gxf.crestdevicesimulator.simulator.response.command
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.transaction.Transactional
 import org.apache.commons.codec.digest.DigestUtils
 import org.gxf.crestdevicesimulator.configuration.AdvancedSingleIdentityPskStore
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
@@ -15,6 +16,7 @@ import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.exception.InvalidPskHashException
 import org.springframework.stereotype.Service
 
+@Transactional
 @Service
 class PskCommandHandler(private val pskRepository: PskRepository,
                         private val simulatorProperties: SimulatorProperties,
@@ -30,7 +32,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
             simulatorProperties.pskIdentity,
             PreSharedKeyStatus.ACTIVE
         )
-            ?: throw NoSuchElementException("No psk for identity: ${simulatorProperties.pskIdentity}")
+            ?: throw NoSuchElementException("No active psk for identity: ${simulatorProperties.pskIdentity}")
 
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
 
@@ -66,7 +68,6 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
         check(currentPsk != null && newPsk != null) { "No current or new psk, impossible to change active key" }
 
-        // todo zorgen dat dit altijd allemaal of helemaal niet gebeurt
         currentPsk.status = PreSharedKeyStatus.INACTIVE
         newPsk.status = PreSharedKeyStatus.ACTIVE
         pskRepository.save(currentPsk)
@@ -81,6 +82,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
         if (newPsk != null) {
             newPsk.status = PreSharedKeyStatus.INVALID
+            pskRepository.save(newPsk)
         }
     }
 }

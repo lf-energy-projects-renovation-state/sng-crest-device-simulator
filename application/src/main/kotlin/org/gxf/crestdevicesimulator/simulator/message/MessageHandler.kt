@@ -48,10 +48,10 @@ class MessageHandler(
 
         logger.info { "SEND REQUEST $request" }
 
-        request(request)
+        sendRequest(request)
     }
 
-    private fun request(request: Request) {
+    private fun sendRequest(request: Request) {
         var coapClient: CoapClient? = null
         try {
             coapClient = coapClientService.createCoapClient()
@@ -70,7 +70,7 @@ class MessageHandler(
     private fun handleResponse(response: CoapResponse) {
         val payload = String(response.payload)
 
-        if (PskExtractor.hasPskCommand(payload)) {
+        if (PskExtractor.hasPskSetCommand(payload)) {
             try {
                 pskCommandHandler.handlePskChange(payload)
                 sendSuccessMessage(payload)
@@ -86,15 +86,15 @@ class MessageHandler(
     private fun sendSuccessMessage(pskCommand: String) {
         logger.info { "Sending success message for command $pskCommand" }
         val messageJsonNode =
-            ObjectMapper().readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
+            mapper.readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_SUCCESS, pskCommand)
         sendMessage(message)
     }
 
     private fun sendFailureMessage(pskCommand: String) {
-        logger.info { "Sending failure message for command $pskCommand" }
+        logger.warn { "Sending failure message for command $pskCommand" }
         val messageJsonNode =
-            ObjectMapper().readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
+            mapper.readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
         sendMessage(message)
     }

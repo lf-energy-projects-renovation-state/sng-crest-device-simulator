@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service
 @Service
 class Simulator(
     private val simulatorProperties: SimulatorProperties,
-    private val messageHandler: MessageHandler
+    private val messageHandler: MessageHandler,
+    private val mapper: ObjectMapper
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -26,9 +27,9 @@ class Simulator(
 
     @Scheduled(fixedDelay = 30000, initialDelay = 0)
     fun sendScheduledMessage() {
-            logger.info { "Sending scheduled alarm message " }
+        logger.info { "Sending scheduled alarm message" }
             val message =
-                ObjectMapper().readTree(ClassPathResource(simulatorProperties.scheduledMessagePath).file)
+                mapper.readTree(ClassPathResource(simulatorProperties.scheduledMessagePath).file)
             messageHandler.sendMessage(message)
     }
 }

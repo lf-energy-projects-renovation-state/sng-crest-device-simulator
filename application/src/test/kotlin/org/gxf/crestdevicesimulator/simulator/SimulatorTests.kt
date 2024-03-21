@@ -17,11 +17,14 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.util.ResourceUtils
 
 @ExtendWith(MockitoExtension::class)
 class SimulatorTests {
+    @Spy
+    private val mapper = ObjectMapper()
 
     @Mock
     private lateinit var simulatorProperties: SimulatorProperties
@@ -67,7 +70,7 @@ class SimulatorTests {
         simulator.sendScheduledMessage()
         verify(coapClient).advanced(argument.capture())
 
-        val expected = CBORMapper().writeValueAsBytes(ObjectMapper().readTree(fileToUse))
+        val expected = CBORMapper().writeValueAsBytes(mapper.readTree(fileToUse))
         assertArrayEquals(expected, argument.value.payload)
     }
 }

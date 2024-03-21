@@ -23,9 +23,11 @@ class SimulatorIntegrationTest {
     @Value("\${simulator.config.uri}")
     private lateinit var uri: URI
 
+    private val mapper = ObjectMapper()
     private lateinit var coapServer: CoapServer
     private val coapResourceStub = CoapResourceStub()
-    private val expectedJsonNode = ObjectMapper().readTree(ClassPathResource("messages/kod-message.json").file)
+    private val expectedJsonNode =
+        mapper.readTree(ClassPathResource("messages/kod-message.json").file)
 
     @BeforeEach
     fun setup() {
