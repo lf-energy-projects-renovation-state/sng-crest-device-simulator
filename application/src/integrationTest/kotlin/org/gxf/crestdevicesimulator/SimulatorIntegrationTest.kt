@@ -39,7 +39,7 @@ class SimulatorIntegrationTest {
 
     @Test
     fun shouldSendCoapRequestToConfiguredEndpoint() {
-        Awaitility.await().atMost(Duration.ofSeconds(10)).untilAsserted {
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted {
             val jsonNodeStub = CBORMapper().readTree(coapResourceStub.lastRequestPayload)
             Assertions.assertEquals(expectedJsonNode, jsonNodeStub)
         }

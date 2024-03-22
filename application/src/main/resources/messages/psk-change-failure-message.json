@@ -21,7 +21,7 @@
   "URC": [
     "PSK:EQER",
     {
-      "DL": "0"
+      "DL": "!PSK:SET"
     }
   ],
   "A": [
