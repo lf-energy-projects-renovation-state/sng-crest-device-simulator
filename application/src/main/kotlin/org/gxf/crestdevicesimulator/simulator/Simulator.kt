@@ -10,9 +10,7 @@ import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.message.MessageHandler
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.io.ClassPathResource
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 @Service
 class Simulator(
