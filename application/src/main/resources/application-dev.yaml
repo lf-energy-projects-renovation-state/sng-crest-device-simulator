@@ -10,5 +10,6 @@ spring:
 
 simulator:
   config:
+    sleepDuration: 30S
     # Uri of the target coap server
     uri: coaps://localhost:55684/sng
