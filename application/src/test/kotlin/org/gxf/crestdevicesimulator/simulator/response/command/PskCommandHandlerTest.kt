@@ -11,6 +11,7 @@ import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKeyStatus
 import org.gxf.crestdevicesimulator.simulator.data.repository.PskRepository
+import org.gxf.crestdevicesimulator.simulator.response.command.exception.InvalidPskException
 import org.gxf.crestdevicesimulator.simulator.response.command.exception.InvalidPskHashException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Answers
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.lenient
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.never
@@ -54,8 +56,8 @@ class PskCommandHandlerTest {
     @BeforeEach
     fun setup() {
         val psk = PreSharedKey(identity, oldRevision, oldKey, secret, PreSharedKeyStatus.ACTIVE)
-        whenever(simulatorProperties.pskIdentity).thenReturn(identity)
-        whenever(pskRepository.findLatestPskForIdentityWithStatus(any<String>(), any())).thenReturn(
+        lenient().whenever(simulatorProperties.pskIdentity).thenReturn(identity)
+        lenient().whenever(pskRepository.findLatestPskForIdentityWithStatus(any<String>(), any())).thenReturn(
             psk
         )
         pskStore.key = oldKey
@@ -64,7 +66,7 @@ class PskCommandHandlerTest {
     @Test
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
         val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
-        val pskCommand = "!PSK:$newKey$expectedHash;PSK:$newKey${expectedHash}SET"
+        val pskCommand = "!PSK:$newKey:${expectedHash};PSK:$newKey:${expectedHash}SET"
         val savedPsk = PreSharedKey(
             identity,
             newRevision,
@@ -75,18 +77,31 @@ class PskCommandHandlerTest {
         whenever(pskRepository.save(any<PreSharedKey>())).thenReturn(savedPsk)
 
         assertThat(pskCommandHandler.handlePskChange(pskCommand)).isEqualTo(savedPsk)
-//        assertThat(pskStore.key).isEqualTo(newKey) todo add new test for this
     }
 
     @Test
-    fun shouldThrowErrorWhenHashDoesNotMatch() {
+    fun shouldThrowErrorPskCommandIsInvalid() {
         val invalidHash = DigestUtils.sha256Hex("invalid")
-        val pskCommand = "!PSK:$oldKey$invalidHash;PSK:$oldKey${invalidHash}SET"
+        val pskCommand = "!PSK:$oldKey;PSK:$oldKey:${invalidHash}SET"
 
         val thrownException = catchException {
             pskCommandHandler.handlePskChange(pskCommand)
         }
         
+        assertThat(thrownException).isInstanceOf(InvalidPskException::class.java)
+        verify(pskRepository, never()).save(any())
+        assertThat(pskStore.key).isEqualTo(oldKey)
+    }
+
+    @Test
+    fun shouldThrowErrorWhenHashDoesNotMatch() {
+        val invalidHash = DigestUtils.sha256Hex("invalid")
+        val pskCommand = "!PSK:$oldKey:$invalidHash;PSK:$oldKey:${invalidHash}SET"
+
+        val thrownException = catchException {
+            pskCommandHandler.handlePskChange(pskCommand)
+        }
+
         assertThat(thrownException).isInstanceOf(InvalidPskHashException::class.java)
         verify(pskRepository, never()).save(any())
         assertThat(pskStore.key).isEqualTo(oldKey)

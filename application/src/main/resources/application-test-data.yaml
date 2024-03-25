@@ -1,9 +1,9 @@
 
 simulator:
   config:
-    scheduled-message-path: "messages/kod-alarm-message.json"
-    success-message-path: "messages/psk-change-success-message.json"
-    failure-message-path: "messages/psk-change-failure-message.json"
+    scheduled-message: "classpath:messages/kod-alarm-message.json"
+    success-message: "classpath:messages/psk-change-success-message.json"
+    failure-message: "classpath:messages/psk-change-failure-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
     # pre-shared key for coaps (dtls)

@@ -1,28 +1,32 @@
-package org.gxf.crestdevicesimulator.simulator
+package org.gxf.crestdevicesimulator.simulator.message
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.CoapResponse
-import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
+import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
-import org.gxf.crestdevicesimulator.simulator.response.ResponseHandler
-import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.gxf.crestdevicesimulator.simulator.response.command.PskCommandHandler
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.util.ResourceUtils
+import kotlin.math.exp
 
 @ExtendWith(MockitoExtension::class)
-class SimulatorTests {
+class MessageHandlerTests {
     @Spy
     private val mapper = ObjectMapper()
 
@@ -36,41 +40,31 @@ class SimulatorTests {
     private lateinit var coapClientService: CoapClientService
 
     @Mock
-    private lateinit var responseHandler: ResponseHandler
+    private lateinit var pskCommandHandler: PskCommandHandler
 
     @InjectMocks
-    private lateinit var simulator: Simulator
-
-    @BeforeEach
-    fun setup() {
-        `when`(coapClient.advanced(any())).thenReturn(mock(CoapResponse::class.java))
-        `when`(simulatorProperties.messagePath).thenReturn("test-file.json")
-        `when`(coapClientService.createCoapClient()).thenReturn(coapClient)
-    }
-
+    private lateinit var messageHandler: MessageHandler
 
     @Test
     fun shouldSendInvalidCborWhenTheMessageTypeIsInvalidCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(false)
-        val argument = ArgumentCaptor.forClass(Request::class.java)
+        val message = mapper.readTree(testFile())
 
-        simulator.sendScheduledMessage()
+        val request = messageHandler.createRequest(message)
 
-        verify(coapClient).advanced(argument.capture())
-        assertEquals(CborFactory.INVALID_CBOR_MESSAGE, argument.value.payloadString)
+        assertThat(request.payloadString).isEqualTo(CborFactory.INVALID_CBOR_MESSAGE)
     }
 
     @Test
     fun shouldSendCborFromConfiguredJsonFileWhenTheMessageTypeIsCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(true)
+        val message = mapper.readTree(testFile())
 
-        val fileToUse = ResourceUtils.getFile("classpath:test-file.json")
-        val argument = ArgumentCaptor.forClass(Request::class.java)
-
-        simulator.sendScheduledMessage()
-        verify(coapClient).advanced(argument.capture())
-
-        val expected = CBORMapper().writeValueAsBytes(mapper.readTree(fileToUse))
-        assertArrayEquals(expected, argument.value.payload)
+        val request = messageHandler.createRequest(message)
+        val expected = CBORMapper().writeValueAsBytes(message)
+        assertThat(request.payload).containsExactly(expected.toTypedArray())
     }
+
+    private fun testFile() =
+        ResourceUtils.getFile("classpath:test-file.json")
 }

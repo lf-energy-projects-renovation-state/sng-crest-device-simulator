@@ -15,7 +15,6 @@ import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.CoapResponse
 import org.eclipse.californium.core.coap.MediaTypeRegistry
 import org.eclipse.californium.core.coap.Request
-import org.eclipse.californium.elements.exception.ConnectorException
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
@@ -23,7 +22,6 @@ import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.PskCommandHandler
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import java.io.IOException
 
 @Service
 class MessageHandler(
@@ -42,33 +40,32 @@ class MessageHandler(
     }
 
     fun sendMessage(jsonNode: JsonNode) {
-        val payload =
-            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode) else CborFactory.createInvalidCbor()
-        val request =
-            Request.newPost()
-                .apply {
-                    options.setContentFormat(MediaTypeRegistry.APPLICATION_CBOR)
-                }.setPayload(payload)
+        val request = createRequest(jsonNode)
+        logger.info { "Sending request: $request" }
 
-        logger.info { "SEND REQUEST $request" }
-
-        sendRequest(request)
-    }
-
-    private fun sendRequest(request: Request) {
         var coapClient: CoapClient? = null
+
         try {
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
-            logger.info { "RESPONSE: ${String(response.payload)}" }
+            logger.info { "Received Response: ${response.payload.decodeToString()}" }
             handleResponse(response)
-        } catch (e: ConnectorException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         } finally {
             if (coapClient != null) coapClientService.shutdownCoapClient(coapClient)
         }
+    }
+
+    fun createRequest(jsonNode: JsonNode): Request{
+        val payload =
+            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode)
+            else CborFactory.createInvalidCbor()
+
+        return Request.newPost()
+            .apply {
+                options.setContentFormat(MediaTypeRegistry.APPLICATION_CBOR)
+            }.setPayload(payload)
     }
 
     private fun handleResponse(response: CoapResponse) {
@@ -90,7 +87,7 @@ class MessageHandler(
     private fun sendSuccessMessage(pskCommand: String) {
         logger.info { "Sending success message for command $pskCommand" }
         val messageJsonNode =
-            mapper.readTree(ClassPathResource(simulatorProperties.successMessagePath).file)
+            mapper.readTree(simulatorProperties.successMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_SUCCESS, pskCommand)
         sendMessage(message)
     }
@@ -98,7 +95,7 @@ class MessageHandler(
     private fun sendFailureMessage(pskCommand: String) {
         logger.warn { "Sending failure message for command $pskCommand" }
         val messageJsonNode =
-            mapper.readTree(ClassPathResource(simulatorProperties.failureMessagePath).file)
+            mapper.readTree(simulatorProperties.failureMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
         sendMessage(message)
     }
