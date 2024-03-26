@@ -18,11 +18,11 @@ dependencyResolutionManagement {
             library("flyway", "org.flywaydb", "flyway-core").withoutVersion()
             bundle("data", listOf("postgresql", "flyway"))
 
-            library("logging", "io.github.oshai", "kotlin-logging-jvm").version("6.0.1")
+            library("logging", "io.github.oshai", "kotlin-logging-jvm").version("6.0.3")
 
             library("commonsCodec", "commons-codec", "commons-codec").version("1.16.0")
 
-            version("mockitoKotlin", "5.1.0")
+            version("mockitoKotlin", "5.3.0")
             library(
                 "mockitoKotlin",
                 "org.mockito.kotlin",
