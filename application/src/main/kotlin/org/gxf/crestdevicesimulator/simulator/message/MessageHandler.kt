@@ -20,7 +20,6 @@ import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.PskCommandHandler
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
 @Service

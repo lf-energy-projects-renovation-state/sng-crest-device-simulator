@@ -6,10 +6,10 @@ package org.gxf.crestdevicesimulator
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility
 import org.eclipse.californium.core.CoapServer
 import org.eclipse.californium.elements.config.Configuration
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -20,6 +20,7 @@ import java.time.Duration
 
 @SpringBootTest
 class SimulatorIntegrationTest {
+
     @Value("\${simulator.config.uri}")
     private lateinit var uri: URI
 
@@ -39,9 +40,9 @@ class SimulatorIntegrationTest {
 
     @Test
     fun shouldSendCoapRequestToConfiguredEndpoint() {
-        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted {
+        Awaitility.await().atMost(Duration.ofSeconds(5)).untilAsserted {
             val jsonNodeStub = CBORMapper().readTree(coapResourceStub.lastRequestPayload)
-            Assertions.assertEquals(expectedJsonNode, jsonNodeStub)
+            assertThat(jsonNodeStub).isEqualTo(expectedJsonNode)
         }
     }
 }
