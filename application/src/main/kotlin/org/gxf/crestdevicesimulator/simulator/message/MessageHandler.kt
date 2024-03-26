@@ -72,11 +72,12 @@ class MessageHandler(
 
         if (PskExtractor.hasPskSetCommand(payload)) {
             try {
+                logger.info { "Device ${simulatorProperties.pskIdentity} needs key change" }
                 pskCommandHandler.handlePskChange(payload)
                 sendSuccessMessage(payload)
                 pskCommandHandler.changeActiveKey()
             } catch (e: Exception) {
-                logger.error(e) { "PSK change error, send failure message" }
+                logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
                 sendFailureMessage(payload)
                 pskCommandHandler.setPendingKeyAsInvalid()
             }
