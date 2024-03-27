@@ -54,7 +54,7 @@ class PskCommandHandlerTest {
     @Test
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
         val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
-        val pskCommand = "!PSK:$newKey$expectedHash;PSK:$newKey${expectedHash}SET"
+        val pskCommand = "!PSK:$newKey:$expectedHash;PSK:$newKey:${expectedHash}SET"
 
         pskCommandHandler.handlePskChange(pskCommand)
 
@@ -64,7 +64,7 @@ class PskCommandHandlerTest {
     @Test
     fun shouldThrowErrorWhenHashDoesNotMatch() {
         val invalidHash = DigestUtils.sha256Hex("invalid")
-        val pskCommand = "!PSK:$oldKey$invalidHash;PSK:$oldKey${invalidHash}SET"
+        val pskCommand = "!PSK:$oldKey:$invalidHash;PSK:$oldKey:${invalidHash}SET"
 
         val thrownException = catchException {
             pskCommandHandler.handlePskChange(pskCommand)
