@@ -16,7 +16,7 @@ class CoapClientConfiguration(private val simulatorProperties: SimulatorProperti
     @Bean
     fun pskStore(): AdvancedSingleIdentityPskStore {
         val store = AdvancedSingleIdentityPskStore(simulatorProperties.pskIdentity)
-        val savedKey = pskRepository.findLatestPskForIdentityWithStatus(
+        val savedKey = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
             simulatorProperties.pskIdentity,
             PreSharedKeyStatus.ACTIVE
         )

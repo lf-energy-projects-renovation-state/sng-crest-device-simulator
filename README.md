@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: Contributors to the GXF project
+
+SPDX-License-Identifier: Apache-2.0
+-->
 # Sng Crest Device Simulator
 
 The simulator acts as a coap device, sends alarm messages and is able to handling a PSK set command.

@@ -57,7 +57,12 @@ class PskCommandHandlerTest {
     fun setup() {
         val psk = PreSharedKey(identity, oldRevision, oldKey, secret, PreSharedKeyStatus.ACTIVE)
         lenient().whenever(simulatorProperties.pskIdentity).thenReturn(identity)
-        lenient().whenever(pskRepository.findLatestPskForIdentityWithStatus(any<String>(), any())).thenReturn(
+        lenient().whenever(
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                identity,
+                PreSharedKeyStatus.ACTIVE
+            )
+        ).thenReturn(
             psk
         )
         pskStore.key = oldKey
@@ -67,16 +72,18 @@ class PskCommandHandlerTest {
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
         val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
         val pskCommand = "!PSK:$newKey:${expectedHash};PSK:$newKey:${expectedHash}SET"
-        val savedPsk = PreSharedKey(
+        val psk = PreSharedKey(
             identity,
             newRevision,
             newKey,
             secret,
             PreSharedKeyStatus.PENDING
         )
-        whenever(pskRepository.save(any<PreSharedKey>())).thenReturn(savedPsk)
+        whenever(pskRepository.save(psk)).thenReturn(psk)
 
-        assertThat(pskCommandHandler.handlePskChange(pskCommand)).isEqualTo(savedPsk)
+        val result = pskCommandHandler.handlePskChange(pskCommand)
+
+        assertThat(result).isEqualTo(psk)
     }
 
     @Test

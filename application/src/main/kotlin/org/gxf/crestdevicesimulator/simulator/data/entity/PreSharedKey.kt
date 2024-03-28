@@ -4,7 +4,11 @@
 
 package org.gxf.crestdevicesimulator.simulator.data.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.IdClass
 import org.gxf.crestdevicesimulator.simulator.data.repository.PreSharedKeyCompositeKey
 
 @Entity
@@ -16,10 +20,3 @@ class PreSharedKey(
     val secret: String,
     @Enumerated(EnumType.STRING) var status: PreSharedKeyStatus
 )
-
-enum class PreSharedKeyStatus {
-    ACTIVE,
-    INACTIVE,
-    PENDING,
-    INVALID
-}

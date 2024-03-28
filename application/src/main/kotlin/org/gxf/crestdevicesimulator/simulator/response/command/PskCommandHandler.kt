@@ -28,7 +28,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
         val newPsk = PskExtractor.extractKeyFromCommand(body)
         val hash = PskExtractor.extractHashFromCommand(body)
 
-        val activePreSharedKey = pskRepository.findLatestPskForIdentityWithStatus(
+        val activePreSharedKey = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
             simulatorProperties.pskIdentity,
             PreSharedKeyStatus.ACTIVE
         )
@@ -62,9 +62,15 @@ class PskCommandHandler(private val pskRepository: PskRepository,
     fun changeActiveKey() {
         val identity = simulatorProperties.pskIdentity
         val currentPsk =
-            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.ACTIVE)
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                identity,
+                PreSharedKeyStatus.ACTIVE
+            )
         val newPsk =
-            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.PENDING)
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                identity,
+                PreSharedKeyStatus.PENDING
+            )
 
         check(currentPsk != null && newPsk != null) { "No current or new psk, impossible to change active key" }
 
@@ -77,12 +83,15 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
     fun setPendingKeyAsInvalid() {
         val identity = simulatorProperties.pskIdentity
-        val newPsk =
-            pskRepository.findLatestPskForIdentityWithStatus(identity, PreSharedKeyStatus.PENDING)
+        val psk =
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                identity,
+                PreSharedKeyStatus.PENDING
+            )
 
-        if (newPsk != null) {
-            newPsk.status = PreSharedKeyStatus.INVALID
-            pskRepository.save(newPsk)
+        if (psk != null) {
+            psk.status = PreSharedKeyStatus.INVALID
+            pskRepository.save(psk)
         }
     }
 }
