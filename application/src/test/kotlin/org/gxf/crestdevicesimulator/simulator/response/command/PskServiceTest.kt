@@ -47,7 +47,7 @@ class PskServiceTest {
 
     private val secret = "secret"
 
-    private val identity = "1234"
+    private val identity = "867787050253370"
 
     private val oldRevision = 0
 
@@ -55,6 +55,7 @@ class PskServiceTest {
 
     @BeforeEach
     fun setup() {
+        whenever(simulatorProperties.pskIdentity).thenReturn(identity)
         val psk = PreSharedKey(identity, oldRevision, oldKey, secret, PreSharedKeyStatus.ACTIVE)
         lenient().whenever(simulatorProperties.pskIdentity).thenReturn(identity)
         lenient().whenever(
@@ -79,7 +80,7 @@ class PskServiceTest {
             secret,
             PreSharedKeyStatus.PENDING
         )
-        whenever(pskRepository.save(psk)).thenReturn(psk)
+        whenever(pskRepository.save(any<PreSharedKey>())).thenReturn(psk)
 
         val result = pskService.preparePendingKey(pskCommand)
 
