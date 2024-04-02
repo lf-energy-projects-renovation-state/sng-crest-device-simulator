@@ -28,7 +28,7 @@ class PskExtractorTest {
             "$notPskCommand, false"
     )
     fun shouldReturnTrueWhenThereIsAPskCommandInString(pskCommand: String, isValid: Boolean) {
-        val result = PskExtractor.hasPskCommand(pskCommand)
+        val result = PskExtractor.hasPskSetCommand(pskCommand)
         assertThat(result).isEqualTo(isValid)
     }
 

@@ -19,9 +19,9 @@
   "TRY": 1,
   "MSI": 0,
   "URC": [
-    "INIT",
+    "PSK:SET",
     {
-      "DL": "0"
+      "DL": "!PSK:SET"
     }
   ],
   "A": [

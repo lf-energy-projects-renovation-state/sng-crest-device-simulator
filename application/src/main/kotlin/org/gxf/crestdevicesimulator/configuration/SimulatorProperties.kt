@@ -5,7 +5,9 @@
 package org.gxf.crestdevicesimulator.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.core.io.Resource
 import java.net.URI
+import java.time.Duration
 
 @ConfigurationProperties(prefix = "simulator.config")
 class SimulatorProperties(
@@ -13,6 +15,9 @@ class SimulatorProperties(
         val pskIdentity: String,
         val pskKey: String,
         val pskSecret: String,
-        val messagePath: String,
+        val sleepDuration: Duration,
+        val scheduledMessage: Resource,
+        val successMessage: Resource,
+        val failureMessage: Resource,
         val produceValidCbor: Boolean,
 )
