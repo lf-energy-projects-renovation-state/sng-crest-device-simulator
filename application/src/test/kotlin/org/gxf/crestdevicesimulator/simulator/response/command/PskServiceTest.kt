@@ -27,7 +27,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @ExtendWith(MockitoExtension::class)
-class PskCommandHandlerTest {
+class PskServiceTest {
 
     @Mock
     private lateinit var pskRepository: PskRepository
@@ -39,7 +39,7 @@ class PskCommandHandlerTest {
     private lateinit var pskStore: AdvancedSingleIdentityPskStore
 
     @InjectMocks
-    private lateinit var pskCommandHandler: PskCommandHandler
+    private lateinit var pskService: PskService
 
     private val newKey = "7654321987654321"
 
@@ -81,7 +81,7 @@ class PskCommandHandlerTest {
         )
         whenever(pskRepository.save(psk)).thenReturn(psk)
 
-        val result = pskCommandHandler.handlePskChange(pskCommand)
+        val result = pskService.preparePendingKey(pskCommand)
 
         assertThat(result).isEqualTo(psk)
     }
@@ -92,7 +92,7 @@ class PskCommandHandlerTest {
         val pskCommand = "!PSK:$oldKey;PSK:$oldKey:${invalidHash}SET"
 
         val thrownException = catchException {
-            pskCommandHandler.handlePskChange(pskCommand)
+            pskService.preparePendingKey(pskCommand)
         }
         
         assertThat(thrownException).isInstanceOf(InvalidPskException::class.java)
@@ -106,7 +106,7 @@ class PskCommandHandlerTest {
         val pskCommand = "!PSK:$oldKey:$invalidHash;PSK:$oldKey:${invalidHash}SET"
 
         val thrownException = catchException {
-            pskCommandHandler.handlePskChange(pskCommand)
+            pskService.preparePendingKey(pskCommand)
         }
 
         assertThat(thrownException).isInstanceOf(InvalidPskHashException::class.java)

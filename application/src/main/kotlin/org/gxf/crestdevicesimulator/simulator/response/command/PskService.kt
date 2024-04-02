@@ -18,13 +18,15 @@ import org.springframework.stereotype.Service
 
 @Transactional
 @Service
-class PskCommandHandler(private val pskRepository: PskRepository,
-                        private val simulatorProperties: SimulatorProperties,
-                        private val pskStore: AdvancedSingleIdentityPskStore) {
+class PskService(
+    private val pskRepository: PskRepository,
+    private val simulatorProperties: SimulatorProperties,
+    private val pskStore: AdvancedSingleIdentityPskStore
+) {
 
     private val logger = KotlinLogging.logger {}
 
-    fun handlePskChange(body: String): PreSharedKey {
+    fun preparePendingKey(body: String): PreSharedKey {
         val newPsk = PskExtractor.extractKeyFromCommand(body)
         val hash = PskExtractor.extractHashFromCommand(body)
 
@@ -48,6 +50,7 @@ class PskCommandHandler(private val pskRepository: PskRepository,
 
     private fun setNewKeyForIdentity(previousPSK: PreSharedKey, newKey: String): PreSharedKey {
         val newVersion = previousPSK.revision + 1
+        logger.debug { "Save new key for identity ${simulatorProperties.pskIdentity} with revision $newVersion and status PENDING" }
         return pskRepository.save(
             PreSharedKey(
                 previousPSK.identity,
@@ -58,6 +61,11 @@ class PskCommandHandler(private val pskRepository: PskRepository,
             )
         )
     }
+
+    fun isPendingKeyPresent() = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+        simulatorProperties.pskIdentity,
+        PreSharedKeyStatus.PENDING
+    ) != null
 
     fun changeActiveKey() {
         val identity = simulatorProperties.pskIdentity

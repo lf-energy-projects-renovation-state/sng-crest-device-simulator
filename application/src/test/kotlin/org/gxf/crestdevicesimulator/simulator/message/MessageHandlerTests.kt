@@ -10,7 +10,7 @@ import org.eclipse.californium.core.CoapClient
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
-import org.gxf.crestdevicesimulator.simulator.response.command.PskCommandHandler
+import org.gxf.crestdevicesimulator.simulator.response.command.PskService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -35,7 +35,7 @@ class MessageHandlerTests {
     private lateinit var coapClientService: CoapClientService
 
     @Mock
-    private lateinit var pskCommandHandler: PskCommandHandler
+    private lateinit var pskService: PskService
 
     @InjectMocks
     private lateinit var messageHandler: MessageHandler
