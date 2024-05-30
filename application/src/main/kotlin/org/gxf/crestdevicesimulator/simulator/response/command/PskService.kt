@@ -39,8 +39,7 @@ class PskService(
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
 
         val secret = activePreSharedKey.secret
-        val oldKey = activePreSharedKey.preSharedKey
-        val expectedHash = DigestUtils.sha256Hex("$secret$oldKey")
+        val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
             throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
