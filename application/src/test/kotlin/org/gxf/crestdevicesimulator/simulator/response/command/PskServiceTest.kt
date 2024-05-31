@@ -71,7 +71,7 @@ class PskServiceTest {
 
     @Test
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
-        val expectedHash = DigestUtils.sha256Hex("$secret$oldKey")
+        val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
         val pskCommand = "!PSK:$newKey:${expectedHash};PSK:$newKey:${expectedHash}:SET"
         val psk = PreSharedKey(
             identity,
