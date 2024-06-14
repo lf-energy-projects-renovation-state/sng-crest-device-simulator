@@ -10,11 +10,10 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
+    implementation(kotlin("reflect"))
     implementation(libs.bundles.californium)
-    implementation(libs.bundles.data)
     implementation(libs.logging)
 
     implementation(libs.commonsCodec)
@@ -22,9 +21,9 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api")
 
-    runtimeOnly("org.springframework:spring-aspects")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(libs.mockitoKotlin)
@@ -59,7 +58,7 @@ testing {
                 implementation("org.awaitility:awaitility")
                 implementation("org.springframework.boot:spring-boot-starter-test")
                 implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-                runtimeOnly(integrationTestLibs.h2)
+                runtimeOnly("com.h2database:h2")
             }
         }
     }
