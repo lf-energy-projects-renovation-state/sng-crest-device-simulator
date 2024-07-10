@@ -11,7 +11,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("kotlinLogging", "7.0.0")
             version("mockitoKotlin", "5.3.1")
-            version("californium", "3.8.0")
+            version("californium", "3.12.1")
             version("commons-codec", "1.17.0")
 
             library("californium-core", "org.eclipse.californium", "californium-core").versionRef("californium")
