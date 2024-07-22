@@ -26,7 +26,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(testLibs.mockitoKotlin)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
@@ -53,11 +53,11 @@ testing {
             useJUnitJupiter()
             dependencies {
                 implementation(project())
+                implementation("org.springframework.boot:spring-boot-starter-test")
+                implementation("org.springframework.boot:spring-boot-starter-data-jpa")
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
                 implementation.bundle(libs.bundles.californium)
                 implementation("org.awaitility:awaitility")
-                implementation("org.springframework.boot:spring-boot-starter-test")
-                implementation("org.springframework.boot:spring-boot-starter-data-jpa")
                 runtimeOnly("com.h2database:h2")
             }
         }
