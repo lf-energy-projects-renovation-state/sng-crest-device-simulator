@@ -15,7 +15,7 @@ plugins {
     kotlin("plugin.spring") version "2.0.0" apply false
     kotlin("plugin.jpa") version "2.0.0" apply false
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1" apply false
-    id("org.sonarqube") version "5.0.0.4638"
+    id("org.sonarqube") version "5.1.0.4882"
     id("eclipse")
 }
 
