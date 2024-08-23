@@ -13,7 +13,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.5" apply false
     kotlin("jvm") version "2.0.0" apply false
     kotlin("plugin.spring") version "2.0.0" apply false
-    kotlin("plugin.jpa") version "2.0.0" apply false
+    kotlin("plugin.jpa") version "2.0.20" apply false
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1" apply false
     id("org.sonarqube") version "5.0.0.4638"
     id("eclipse")
