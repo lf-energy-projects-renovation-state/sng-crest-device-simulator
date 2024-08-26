@@ -19,5 +19,6 @@ class SimulatorProperties(
         val scheduledMessage: Resource,
         val successMessage: Resource,
         val failureMessage: Resource,
+        val rebootSuccessMessage: Resource,
         val produceValidCbor: Boolean,
 )
