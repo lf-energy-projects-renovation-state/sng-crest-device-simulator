@@ -14,3 +14,4 @@ simulator:
     psk-identity: 867787050253370
     psk-key: ABCDEFGHIJKLMNOP
     psk-secret: "123456"
+    cipher-suites: TLS_PSK_WITH_AES_128_GCM_SHA256

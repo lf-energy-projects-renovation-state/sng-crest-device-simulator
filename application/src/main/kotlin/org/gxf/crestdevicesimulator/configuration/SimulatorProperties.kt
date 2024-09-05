@@ -4,6 +4,7 @@
 
 package org.gxf.crestdevicesimulator.configuration
 
+import org.eclipse.californium.scandium.dtls.cipher.CipherSuite
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.core.io.Resource
 import java.net.URI
@@ -20,4 +21,5 @@ class SimulatorProperties(
         val successMessage: Resource,
         val failureMessage: Resource,
         val produceValidCbor: Boolean,
+        val cipherSuites: List<CipherSuite>
 )
