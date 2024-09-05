@@ -30,3 +30,4 @@ simulator:
     psk-key: ABCDEFGHIJKLMNOP
     psk-secret: "123456"
     sleep-duration: 100ms
+    cipher-suite: TLS_PSK_WITH_AES_128_GCM_SHA256

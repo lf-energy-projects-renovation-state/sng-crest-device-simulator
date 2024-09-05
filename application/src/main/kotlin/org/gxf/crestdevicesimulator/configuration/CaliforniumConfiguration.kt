@@ -30,6 +30,6 @@ class CaliforniumConfiguration(private val simulatorProperties: SimulatorPropert
                 .set(CoapConfig.COAP_SECURE_PORT, simulatorProperties.uri.port)
                 .set(DtlsConfig.DTLS_ROLE, DtlsRole.CLIENT_ONLY)
                 .set(DtlsConfig.DTLS_RECOMMENDED_CIPHER_SUITES_ONLY, false)
-                .set(DtlsConfig.DTLS_CIPHER_SUITES, listOf(CipherSuite.TLS_PSK_WITH_AES_128_CBC_SHA256))
+                .set(DtlsConfig.DTLS_CIPHER_SUITES, listOf(CipherSuite.getTypeByName(simulatorProperties.cipherSuite)))
     }
 }

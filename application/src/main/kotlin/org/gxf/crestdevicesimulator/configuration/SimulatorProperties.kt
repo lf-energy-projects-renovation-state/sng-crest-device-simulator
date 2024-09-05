@@ -20,4 +20,5 @@ class SimulatorProperties(
         val successMessage: Resource,
         val failureMessage: Resource,
         val produceValidCbor: Boolean,
+        val cipherSuite: String
 )
