@@ -1,6 +1,10 @@
 #SPDX-FileCopyrightText: Contributors to the GXF project
 #
 #SPDX-License-Identifier: Apache-2.0
+simulator:
+  config:
+    cipher-suites: TLS_PSK_WITH_AES_128_GCM_SHA256
+
 management:
   endpoints:
     web:
