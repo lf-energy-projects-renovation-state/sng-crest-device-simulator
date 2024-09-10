@@ -18,6 +18,7 @@ import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
+import org.gxf.crestdevicesimulator.simulator.response.CommandService
 import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.PskService
 import org.springframework.stereotype.Service
@@ -27,7 +28,8 @@ class MessageHandler(
     private val coapClientService: CoapClientService,
     private val simulatorProperties: SimulatorProperties,
     private val pskService: PskService,
-    private val mapper: ObjectMapper
+    private val mapper: ObjectMapper,
+    private val commandService: CommandService
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -70,10 +72,16 @@ class MessageHandler(
     private fun handleResponse(response: CoapResponse) {
         if (response.isSuccess) {
             val payload = String(response.payload)
-            if (PskExtractor.hasPskSetCommand(payload)) {
-                handlePskSetCommand(payload)
-            } else if (pskService.isPendingKeyPresent()) {
-                pskService.changeActiveKey()
+            when {
+                PskExtractor.hasPskSetCommand(payload) -> {
+                    handlePskSetCommand(payload)
+                }
+                pskService.isPendingKeyPresent() -> {
+                    pskService.changeActiveKey()
+                }
+                commandService.hasRebootCommand(payload) -> {
+                    sendRebootSuccesMessage(payload)
+                }
             }
         } else {
             logger.error { "Received error response with ${response.code}" }
@@ -88,15 +96,15 @@ class MessageHandler(
         try {
             logger.info { "Device ${simulatorProperties.pskIdentity} needs key change" }
             pskService.preparePendingKey(payload)
-            sendSuccessMessage(payload)
+            sendPskSetSuccessMessage(payload)
         } catch (e: Exception) {
             logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
-            sendFailureMessage(payload)
+            sendPskSetFailureMessage(payload)
             pskService.setPendingKeyAsInvalid()
         }
     }
 
-    private fun sendSuccessMessage(pskCommand: String) {
+    private fun sendPskSetSuccessMessage(pskCommand: String) {
         logger.info { "Sending success message for command $pskCommand" }
         val messageJsonNode =
             mapper.readTree(simulatorProperties.successMessage.inputStream)
@@ -104,11 +112,18 @@ class MessageHandler(
         sendMessage(message)
     }
 
-    private fun sendFailureMessage(pskCommand: String) {
+    private fun sendPskSetFailureMessage(pskCommand: String) {
         logger.warn { "Sending failure message for command $pskCommand" }
         val messageJsonNode =
             mapper.readTree(simulatorProperties.failureMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
+        sendMessage(message)
+    }
+
+    private fun sendRebootSuccesMessage(command: String) {
+        logger.info { "Sending success message for command $command" }
+        val message =
+            mapper.readTree(simulatorProperties.rebootSuccessMessage.inputStream)
         sendMessage(message)
     }
 
