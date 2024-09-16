@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.davidmc24.gradle.plugin.avro.GenerateAvroJavaTask
 import io.spring.gradle.dependencymanagement.internal.dsl.StandardDependencyManagementExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -15,6 +16,7 @@ plugins {
     kotlin("plugin.spring") version "2.0.0" apply false
     kotlin("plugin.jpa") version "2.0.0" apply false
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1" apply false
+    id("com.diffplug.spotless") version "6.25.0"
     id("org.sonarqube") version "5.0.0.4638"
     id("eclipse")
 }
@@ -34,6 +36,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "com.diffplug.spotless")
     apply(plugin = "eclipse")
     apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
     apply(plugin = "jacoco")
@@ -44,6 +47,17 @@ subprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    extensions.configure<SpotlessExtension> {
+        kotlin {
+            // by default the target is every '.kt' and '.kts' file in the java source sets
+            ktfmt().dropboxStyle()
+            licenseHeaderFile(
+                "${project.rootDir}/license-template.kt",
+                "package")
+                .updateYearWithLatest(false)
+        }
     }
 
     extensions.configure<StandardDependencyManagementExtension> {
@@ -59,8 +73,18 @@ subprojects {
         }
     }
 
+    tasks.register<Copy>("updateGitHooks") {
+        description = "Copies the pre-commit Git Hook to the .git/hooks folder."
+        group = "verification"
+        from("${project.rootDir}/scripts/pre-commit")
+        into("${project.rootDir}/.git/hooks")
+    }
+
     tasks.withType<KotlinCompile> {
-        dependsOn(tasks.withType<GenerateAvroJavaTask>())
+        dependsOn(
+            tasks.withType<GenerateAvroJavaTask>(),
+            tasks.named("updateGitHooks")
+        )
     }
 
     tasks.withType<Test> {
