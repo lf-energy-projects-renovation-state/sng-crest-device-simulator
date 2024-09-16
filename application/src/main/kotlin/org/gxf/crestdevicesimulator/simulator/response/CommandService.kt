@@ -7,6 +7,5 @@ import org.springframework.stereotype.Service
 
 @Service
 class CommandService {
-    // todo remove
     fun hasRebootCommand(command: String) = command.contains("CMD:REBOOT")
 }

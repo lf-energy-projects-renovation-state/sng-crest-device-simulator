@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Contributors to the GXF project
 //
 // SPDX-License-Identifier: Apache-2.0
-
 package org.gxf.crestdevicesimulator.simulator
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -39,6 +38,5 @@ class Simulator(
         }
     }
 
-    fun createMessage(resource: Resource): JsonNode =
-        mapper.readTree(resource.inputStream)
+    fun createMessage(resource: Resource): JsonNode = mapper.readTree(resource.inputStream)
 }

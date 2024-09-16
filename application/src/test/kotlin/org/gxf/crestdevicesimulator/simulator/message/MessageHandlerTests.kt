@@ -23,26 +23,19 @@ import org.springframework.util.ResourceUtils
 
 @ExtendWith(MockitoExtension::class)
 class MessageHandlerTests {
-    @Spy
-    private val mapper = ObjectMapper()
+    @Spy private val mapper = ObjectMapper()
 
-    @Mock
-    private lateinit var simulatorProperties: SimulatorProperties
+    @Mock private lateinit var simulatorProperties: SimulatorProperties
 
-    @Mock
-    private lateinit var coapClient: CoapClient
+    @Mock private lateinit var coapClient: CoapClient
 
-    @Mock
-    private lateinit var coapClientService: CoapClientService
+    @Mock private lateinit var coapClientService: CoapClientService
 
-    @Mock
-    private lateinit var pskService: PskService
+    @Mock private lateinit var pskService: PskService
 
-    @Mock
-    private lateinit var commandService: CommandService
+    @Mock private lateinit var commandService: CommandService
 
-    @InjectMocks
-    private lateinit var messageHandler: MessageHandler
+    @InjectMocks private lateinit var messageHandler: MessageHandler
 
     @Test
     fun shouldSendInvalidCborWhenTheMessageTypeIsInvalidCbor() {
@@ -64,6 +57,5 @@ class MessageHandlerTests {
         assertThat(request.payload).containsExactly(expected.toTypedArray())
     }
 
-    private fun testFile() =
-        ResourceUtils.getFile("classpath:test-file.json")
+    private fun testFile() = ResourceUtils.getFile("classpath:test-file.json")
 }

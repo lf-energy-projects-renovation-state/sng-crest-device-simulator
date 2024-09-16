@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Contributors to the GXF project
 //
 // SPDX-License-Identifier: Apache-2.0
-
 package org.gxf.crestdevicesimulator.simulator.message
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -49,7 +48,9 @@ class MessageHandler(
         try {
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
-            logger.info { "Received Response: ${response.payload.decodeToString()} with status ${response.code}" }
+            logger.info {
+                "Received Response: ${response.payload.decodeToString()} with status ${response.code}"
+            }
             handleResponse(response)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -58,15 +59,14 @@ class MessageHandler(
         }
     }
 
-    fun createRequest(jsonNode: JsonNode): Request{
+    fun createRequest(jsonNode: JsonNode): Request {
         val payload =
             if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode)
             else CborFactory.createInvalidCbor()
 
         return Request.newPost()
-            .apply {
-                options.setContentFormat(MediaTypeRegistry.APPLICATION_CBOR)
-            }.setPayload(payload)
+            .apply { options.setContentFormat(MediaTypeRegistry.APPLICATION_CBOR) }
+            .setPayload(payload)
     }
 
     private fun handleResponse(response: CoapResponse) {
@@ -98,7 +98,9 @@ class MessageHandler(
             pskService.preparePendingKey(payload)
             sendPskSetSuccessMessage(payload)
         } catch (e: Exception) {
-            logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
+            logger.error(e) {
+                "PSK change error, send failure message and set pending key status to invalid"
+            }
             sendPskSetFailureMessage(payload)
             pskService.setPendingKeyAsInvalid()
         }
@@ -106,24 +108,21 @@ class MessageHandler(
 
     private fun sendPskSetSuccessMessage(pskCommand: String) {
         logger.info { "Sending success message for command $pskCommand" }
-        val messageJsonNode =
-            mapper.readTree(simulatorProperties.successMessage.inputStream)
+        val messageJsonNode = mapper.readTree(simulatorProperties.successMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_SUCCESS, pskCommand)
         sendMessage(message)
     }
 
     private fun sendPskSetFailureMessage(pskCommand: String) {
         logger.warn { "Sending failure message for command $pskCommand" }
-        val messageJsonNode =
-            mapper.readTree(simulatorProperties.failureMessage.inputStream)
+        val messageJsonNode = mapper.readTree(simulatorProperties.failureMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
         sendMessage(message)
     }
 
     private fun sendRebootSuccesMessage(command: String) {
         logger.info { "Sending success message for command $command" }
-        val message =
-            mapper.readTree(simulatorProperties.rebootSuccessMessage.inputStream)
+        val message = mapper.readTree(simulatorProperties.rebootSuccessMessage.inputStream)
         sendMessage(message)
     }
 
@@ -133,10 +132,10 @@ class MessageHandler(
         receivedCommand: String
     ): JsonNode {
         val newMessage = message as ObjectNode
-        val urcList = listOf(
-            TextNode(urc),
-            ObjectNode(JsonNodeFactory.instance, mapOf(DL_FIELD to TextNode(receivedCommand)))
-        )
+        val urcList =
+            listOf(
+                TextNode(urc),
+                ObjectNode(JsonNodeFactory.instance, mapOf(DL_FIELD to TextNode(receivedCommand))))
         val urcArray = mapper.valueToTree<ArrayNode>(urcList)
         newMessage.replace(URC_FIELD, urcArray)
         logger.debug { "Sending message with URC $urcArray" }
