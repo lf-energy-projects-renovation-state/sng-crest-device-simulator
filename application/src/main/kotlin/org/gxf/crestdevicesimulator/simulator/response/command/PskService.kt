@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Contributors to the GXF project
 //
 // SPDX-License-Identifier: Apache-2.0
-
 package org.gxf.crestdevicesimulator.simulator.response.command
 
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -30,11 +29,11 @@ class PskService(
         val newPsk = PskExtractor.extractKeyFromCommand(body)
         val hash = PskExtractor.extractHashFromCommand(body)
 
-        val activePreSharedKey = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-            simulatorProperties.pskIdentity,
-            PreSharedKeyStatus.ACTIVE
-        )
-            ?: throw NoSuchElementException("No active psk for identity: ${simulatorProperties.pskIdentity}")
+        val activePreSharedKey =
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                simulatorProperties.pskIdentity, PreSharedKeyStatus.ACTIVE)
+                ?: throw NoSuchElementException(
+                    "No active psk for identity: ${simulatorProperties.pskIdentity}")
 
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
 
@@ -42,7 +41,8 @@ class PskService(
         val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
-            throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
+            throw InvalidPskHashException(
+                "PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
         return setNewKeyForIdentity(activePreSharedKey, newPsk)
@@ -50,37 +50,34 @@ class PskService(
 
     private fun setNewKeyForIdentity(previousPSK: PreSharedKey, newKey: String): PreSharedKey {
         val newVersion = previousPSK.revision + 1
-        logger.debug { "Save new key for identity ${simulatorProperties.pskIdentity} with revision $newVersion and status PENDING" }
+        logger.debug {
+            "Save new key for identity ${simulatorProperties.pskIdentity} with revision $newVersion and status PENDING"
+        }
         return pskRepository.save(
             PreSharedKey(
                 previousPSK.identity,
                 newVersion,
                 newKey,
                 previousPSK.secret,
-                PreSharedKeyStatus.PENDING
-            )
-        )
+                PreSharedKeyStatus.PENDING))
     }
 
-    fun isPendingKeyPresent() = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-        simulatorProperties.pskIdentity,
-        PreSharedKeyStatus.PENDING
-    ) != null
+    fun isPendingKeyPresent() =
+        pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+            simulatorProperties.pskIdentity, PreSharedKeyStatus.PENDING) != null
 
     fun changeActiveKey() {
         val identity = simulatorProperties.pskIdentity
         val currentPsk =
             pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity,
-                PreSharedKeyStatus.ACTIVE
-            )
+                identity, PreSharedKeyStatus.ACTIVE)
         val newPsk =
             pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity,
-                PreSharedKeyStatus.PENDING
-            )
+                identity, PreSharedKeyStatus.PENDING)
 
-        check(currentPsk != null && newPsk != null) { "No current or new psk, impossible to change active key" }
+        check(currentPsk != null && newPsk != null) {
+            "No current or new psk, impossible to change active key"
+        }
 
         currentPsk.status = PreSharedKeyStatus.INACTIVE
         newPsk.status = PreSharedKeyStatus.ACTIVE
@@ -93,9 +90,7 @@ class PskService(
         val identity = simulatorProperties.pskIdentity
         val psk =
             pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity,
-                PreSharedKeyStatus.PENDING
-            )
+                identity, PreSharedKeyStatus.PENDING)
 
         if (psk != null) {
             psk.status = PreSharedKeyStatus.INVALID

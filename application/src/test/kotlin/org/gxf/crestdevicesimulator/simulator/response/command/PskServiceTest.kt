@@ -29,17 +29,14 @@ import org.mockito.kotlin.whenever
 @ExtendWith(MockitoExtension::class)
 class PskServiceTest {
 
-    @Mock
-    private lateinit var pskRepository: PskRepository
+    @Mock private lateinit var pskRepository: PskRepository
 
-    @Mock
-    private lateinit var simulatorProperties: SimulatorProperties
+    @Mock private lateinit var simulatorProperties: SimulatorProperties
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private lateinit var pskStore: AdvancedSingleIdentityPskStore
 
-    @InjectMocks
-    private lateinit var pskService: PskService
+    @InjectMocks private lateinit var pskService: PskService
 
     private val newKey = "7654321987654321"
 
@@ -58,14 +55,11 @@ class PskServiceTest {
         whenever(simulatorProperties.pskIdentity).thenReturn(identity)
         val psk = PreSharedKey(identity, oldRevision, oldKey, secret, PreSharedKeyStatus.ACTIVE)
         lenient().whenever(simulatorProperties.pskIdentity).thenReturn(identity)
-        lenient().whenever(
-            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity,
-                PreSharedKeyStatus.ACTIVE
-            )
-        ).thenReturn(
-            psk
-        )
+        lenient()
+            .whenever(
+                pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
+                    identity, PreSharedKeyStatus.ACTIVE))
+            .thenReturn(psk)
         pskStore.key = oldKey
     }
 
@@ -73,13 +67,7 @@ class PskServiceTest {
     fun shouldSetNewPskInStoreWhenTheKeyIsValid() {
         val expectedHash = DigestUtils.sha256Hex("$secret$newKey")
         val pskCommand = "!PSK:$newKey:${expectedHash};PSK:$newKey:${expectedHash}:SET"
-        val psk = PreSharedKey(
-            identity,
-            newRevision,
-            newKey,
-            secret,
-            PreSharedKeyStatus.PENDING
-        )
+        val psk = PreSharedKey(identity, newRevision, newKey, secret, PreSharedKeyStatus.PENDING)
         whenever(pskRepository.save(any<PreSharedKey>())).thenReturn(psk)
 
         val result = pskService.preparePendingKey(pskCommand)
@@ -92,10 +80,8 @@ class PskServiceTest {
         val invalidHash = DigestUtils.sha256Hex("invalid")
         val pskCommand = "!PSK:$oldKey;PSK:$oldKey:${invalidHash}:SET"
 
-        val thrownException = catchException {
-            pskService.preparePendingKey(pskCommand)
-        }
-        
+        val thrownException = catchException { pskService.preparePendingKey(pskCommand) }
+
         assertThat(thrownException).isInstanceOf(InvalidPskException::class.java)
         verify(pskRepository, never()).save(any())
         assertThat(pskStore.key).isEqualTo(oldKey)
@@ -106,9 +92,7 @@ class PskServiceTest {
         val invalidHash = DigestUtils.sha256Hex("invalid")
         val pskCommand = "!PSK:$oldKey:$invalidHash;PSK:$oldKey:${invalidHash}:SET"
 
-        val thrownException = catchException {
-            pskService.preparePendingKey(pskCommand)
-        }
+        val thrownException = catchException { pskService.preparePendingKey(pskCommand) }
 
         assertThat(thrownException).isInstanceOf(InvalidPskHashException::class.java)
         verify(pskRepository, never()).save(any())
