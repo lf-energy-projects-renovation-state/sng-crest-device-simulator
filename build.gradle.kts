@@ -52,7 +52,9 @@ subprojects {
     extensions.configure<SpotlessExtension> {
         kotlin {
             // by default the target is every '.kt' and '.kts' file in the java source sets
-            ktfmt().dropboxStyle()
+            ktfmt().dropboxStyle().configure {
+                it.setMaxWidth(120)
+            }
             licenseHeaderFile(
                 "${project.rootDir}/license-template.kt",
                 "package")
