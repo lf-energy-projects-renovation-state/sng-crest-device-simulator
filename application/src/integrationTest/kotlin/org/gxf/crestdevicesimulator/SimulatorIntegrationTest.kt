@@ -25,14 +25,12 @@ class SimulatorIntegrationTest {
     private val mapper = ObjectMapper()
     private lateinit var coapServer: CoapServer
     private val coapResourceStub = CoapResourceStub()
-    private val expectedJsonNode =
-        mapper.readTree(ClassPathResource("messages/kod-message.json").file)
+    private val expectedJsonNode = mapper.readTree(ClassPathResource("messages/kod-message.json").file)
 
     @BeforeEach
     fun setup() {
         coapServer = CoapServer(Configuration.getStandard())
-        coapServer.addEndpoint(
-            CoapServerHelpers.createEndpoint(Configuration.getStandard(), uri.port))
+        coapServer.addEndpoint(CoapServerHelpers.createEndpoint(Configuration.getStandard(), uri.port))
         coapServer.add(coapResourceStub)
         coapServer.start()
     }

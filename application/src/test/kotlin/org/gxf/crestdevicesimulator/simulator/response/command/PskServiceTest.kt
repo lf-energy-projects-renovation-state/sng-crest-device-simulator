@@ -33,8 +33,7 @@ class PskServiceTest {
 
     @Mock private lateinit var simulatorProperties: SimulatorProperties
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private lateinit var pskStore: AdvancedSingleIdentityPskStore
+    @Mock(answer = Answers.CALLS_REAL_METHODS) private lateinit var pskStore: AdvancedSingleIdentityPskStore
 
     @InjectMocks private lateinit var pskService: PskService
 
@@ -57,8 +56,7 @@ class PskServiceTest {
         lenient().whenever(simulatorProperties.pskIdentity).thenReturn(identity)
         lenient()
             .whenever(
-                pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                    identity, PreSharedKeyStatus.ACTIVE))
+                pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(identity, PreSharedKeyStatus.ACTIVE))
             .thenReturn(psk)
         pskStore.key = oldKey
     }

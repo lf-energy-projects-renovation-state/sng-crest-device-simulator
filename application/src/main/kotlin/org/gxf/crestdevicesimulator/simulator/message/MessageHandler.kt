@@ -48,9 +48,7 @@ class MessageHandler(
         try {
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
-            logger.info {
-                "Received Response: ${response.payload.decodeToString()} with status ${response.code}"
-            }
+            logger.info { "Received Response: ${response.payload.decodeToString()} with status ${response.code}" }
             handleResponse(response)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -98,9 +96,7 @@ class MessageHandler(
             pskService.preparePendingKey(payload)
             sendPskSetSuccessMessage(payload)
         } catch (e: Exception) {
-            logger.error(e) {
-                "PSK change error, send failure message and set pending key status to invalid"
-            }
+            logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
             sendPskSetFailureMessage(payload)
             pskService.setPendingKeyAsInvalid()
         }
@@ -126,16 +122,10 @@ class MessageHandler(
         sendMessage(message)
     }
 
-    private fun updatePskCommandInMessage(
-        message: JsonNode,
-        urc: String,
-        receivedCommand: String
-    ): JsonNode {
+    private fun updatePskCommandInMessage(message: JsonNode, urc: String, receivedCommand: String): JsonNode {
         val newMessage = message as ObjectNode
         val urcList =
-            listOf(
-                TextNode(urc),
-                ObjectNode(JsonNodeFactory.instance, mapOf(DL_FIELD to TextNode(receivedCommand))))
+            listOf(TextNode(urc), ObjectNode(JsonNodeFactory.instance, mapOf(DL_FIELD to TextNode(receivedCommand))))
         val urcArray = mapper.valueToTree<ArrayNode>(urcList)
         newMessage.replace(URC_FIELD, urcArray)
         logger.debug { "Sending message with URC $urcArray" }

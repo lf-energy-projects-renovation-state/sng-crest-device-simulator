@@ -43,9 +43,7 @@ class CoapClientService(
         return coapClient
     }
 
-    private fun createDtlsConnector(
-        advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore
-    ): DTLSConnector {
+    private fun createDtlsConnector(advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore): DTLSConnector {
         val address = InetSocketAddress(0)
         val dtlsBuilder =
             DtlsConnectorConfig.builder(configuration)

@@ -10,15 +10,12 @@ import org.junit.jupiter.params.provider.CsvSource
 class PskExtractorTest {
 
     companion object {
-        private const val testHash =
-            "1234567890123456123456789012345612345678901234561234567890123456"
+        private const val testHash = "1234567890123456123456789012345612345678901234561234567890123456"
 
-        private const val validPskCommand =
-            "!PSK:1234567891234567:${testHash};PSK:1234567891234567:${testHash}:SET"
+        private const val validPskCommand = "!PSK:1234567891234567:${testHash};PSK:1234567891234567:${testHash}:SET"
         private const val validPskCommandWithKeyWordsInKey =
             "!PSK:PSKaSET1PSKd2SET:${testHash};PSK:PSKaSET1PSKd2SET:${testHash}:SET"
-        private const val invalidKeySizePskCommand =
-            "!PSK:1234:${testHash};PSK:1234:${testHash}:SET"
+        private const val invalidKeySizePskCommand = "!PSK:1234:${testHash};PSK:1234:${testHash}:SET"
         private const val notPskCommand = "NoPskCommandInThisString"
     }
 
@@ -34,8 +31,7 @@ class PskExtractorTest {
     }
 
     @ParameterizedTest
-    @CsvSource(
-        "$validPskCommand, 1234567891234567", "$validPskCommandWithKeyWordsInKey, PSKaSET1PSKd2SET")
+    @CsvSource("$validPskCommand, 1234567891234567", "$validPskCommandWithKeyWordsInKey, PSKaSET1PSKd2SET")
     fun shouldReturnPskKeyFromValidPskCommand(pskCommand: String, expectedKey: String) {
         val result = PskExtractor.extractKeyFromCommand(pskCommand)
 

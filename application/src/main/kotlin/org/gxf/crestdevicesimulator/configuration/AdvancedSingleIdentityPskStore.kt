@@ -36,8 +36,7 @@ class AdvancedSingleIdentityPskStore(private val identity: String) : AdvancedPsk
         useExtendedMasterSecret: Boolean
     ): PskSecretResult {
         if (key.isEmpty()) {
-            return PskSecretResult(
-                cid, identity, SecretUtil.create(defaultKey.toByteArray(), ALGORITHM))
+            return PskSecretResult(cid, identity, SecretUtil.create(defaultKey.toByteArray(), ALGORITHM))
         }
         return PskSecretResult(cid, identity, SecretUtil.create(key.toByteArray(), ALGORITHM))
     }

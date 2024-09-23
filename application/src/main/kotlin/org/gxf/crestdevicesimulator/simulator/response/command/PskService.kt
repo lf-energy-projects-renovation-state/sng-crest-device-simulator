@@ -32,8 +32,7 @@ class PskService(
         val activePreSharedKey =
             pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
                 simulatorProperties.pskIdentity, PreSharedKeyStatus.ACTIVE)
-                ?: throw NoSuchElementException(
-                    "No active psk for identity: ${simulatorProperties.pskIdentity}")
+                ?: throw NoSuchElementException("No active psk for identity: ${simulatorProperties.pskIdentity}")
 
         logger.info { "Validating hash for identity: ${simulatorProperties.pskIdentity}" }
 
@@ -41,8 +40,7 @@ class PskService(
         val expectedHash = DigestUtils.sha256Hex("$secret$newPsk")
 
         if (expectedHash != hash) {
-            throw InvalidPskHashException(
-                "PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
+            throw InvalidPskHashException("PSK set Hash for Identity ${simulatorProperties.pskIdentity} did not match")
         }
 
         return setNewKeyForIdentity(activePreSharedKey, newPsk)
@@ -54,12 +52,7 @@ class PskService(
             "Save new key for identity ${simulatorProperties.pskIdentity} with revision $newVersion and status PENDING"
         }
         return pskRepository.save(
-            PreSharedKey(
-                previousPSK.identity,
-                newVersion,
-                newKey,
-                previousPSK.secret,
-                PreSharedKeyStatus.PENDING))
+            PreSharedKey(previousPSK.identity, newVersion, newKey, previousPSK.secret, PreSharedKeyStatus.PENDING))
     }
 
     fun isPendingKeyPresent() =
@@ -69,15 +62,10 @@ class PskService(
     fun changeActiveKey() {
         val identity = simulatorProperties.pskIdentity
         val currentPsk =
-            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity, PreSharedKeyStatus.ACTIVE)
-        val newPsk =
-            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity, PreSharedKeyStatus.PENDING)
+            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(identity, PreSharedKeyStatus.ACTIVE)
+        val newPsk = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(identity, PreSharedKeyStatus.PENDING)
 
-        check(currentPsk != null && newPsk != null) {
-            "No current or new psk, impossible to change active key"
-        }
+        check(currentPsk != null && newPsk != null) { "No current or new psk, impossible to change active key" }
 
         currentPsk.status = PreSharedKeyStatus.INACTIVE
         newPsk.status = PreSharedKeyStatus.ACTIVE
@@ -88,9 +76,7 @@ class PskService(
 
     fun setPendingKeyAsInvalid() {
         val identity = simulatorProperties.pskIdentity
-        val psk =
-            pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                identity, PreSharedKeyStatus.PENDING)
+        val psk = pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(identity, PreSharedKeyStatus.PENDING)
 
         if (psk != null) {
             psk.status = PreSharedKeyStatus.INVALID

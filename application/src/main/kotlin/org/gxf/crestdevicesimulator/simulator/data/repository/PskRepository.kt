@@ -8,8 +8,5 @@ import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKeyStatus
 import org.springframework.data.repository.CrudRepository
 
 interface PskRepository : CrudRepository<PreSharedKey, PreSharedKeyCompositeKey> {
-    fun findFirstByIdentityAndStatusOrderByRevisionDesc(
-        identity: String,
-        status: PreSharedKeyStatus
-    ): PreSharedKey?
+    fun findFirstByIdentityAndStatusOrderByRevisionDesc(identity: String, status: PreSharedKeyStatus): PreSharedKey?
 }
