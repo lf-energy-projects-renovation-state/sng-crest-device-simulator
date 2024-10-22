@@ -6,6 +6,7 @@ package org.gxf.crestdevicesimulator.simulator.message
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
@@ -20,6 +21,7 @@ import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.CommandService
 import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.PskService
+import org.gxf.crestdevicesimulator.simulator.response.handlers.CommandHandler
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,7 +30,8 @@ class MessageHandler(
     private val simulatorProperties: SimulatorProperties,
     private val pskService: PskService,
     private val mapper: ObjectMapper,
-    private val commandService: CommandService
+    private val commandService: CommandService,
+    private val handlers: List<CommandHandler>
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -58,8 +61,10 @@ class MessageHandler(
     }
 
     fun createRequest(jsonNode: JsonNode): Request {
+        val newMessage = jsonNode as ObjectNode
+        newMessage.replace("FMC", IntNode(simulatorProperties.fotaMessageCounter))
         val payload =
-            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode)
+            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(newMessage)
             else CborFactory.createInvalidCbor()
 
         return Request.newPost()
@@ -75,11 +80,20 @@ class MessageHandler(
                     handlePskSetCommand(payload)
                 }
                 pskService.isPendingKeyPresent() -> {
+                    // Use new PSK with the next message, not in a response to the setter-msg TODO
+                    // remove comment
                     pskService.changeActiveKey()
                 }
                 commandService.hasRebootCommand(payload) -> {
                     sendRebootSuccesMessage(payload)
                 }
+            }
+            val returnCodes = handlers.map { handler -> handler.handleResponse(response, simulatorProperties) }
+            if (payload != 0.toString()) {
+                val newMessage = DeviceMessage(FMC = simulatorProperties.fotaMessageCounter)
+                newMessage.setURC(returnCodes, payload)
+                val jsonNode = mapper.valueToTree<JsonNode>(newMessage)
+                sendMessage(jsonNode)
             }
         } else {
             logger.error { "Received error response with ${response.code}" }

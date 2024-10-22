@@ -21,5 +21,6 @@ class SimulatorProperties(
     val failureMessage: Resource,
     val rebootSuccessMessage: Resource,
     val produceValidCbor: Boolean,
-    val cipherSuites: List<CipherSuite>
+    val cipherSuites: List<CipherSuite>,
+    var fotaMessageCounter: Int = 0,
 )
