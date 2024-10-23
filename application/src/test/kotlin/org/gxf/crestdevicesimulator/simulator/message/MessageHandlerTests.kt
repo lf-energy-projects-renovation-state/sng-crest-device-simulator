@@ -12,6 +12,7 @@ import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.CommandService
 import org.gxf.crestdevicesimulator.simulator.response.command.PskService
+import org.gxf.crestdevicesimulator.simulator.response.handlers.FirmwareCommandHandler
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -34,6 +35,8 @@ class MessageHandlerTests {
     @Mock private lateinit var pskService: PskService
 
     @Mock private lateinit var commandService: CommandService
+
+    @Spy private val handlers = listOf(FirmwareCommandHandler())
 
     @InjectMocks private lateinit var messageHandler: MessageHandler
 

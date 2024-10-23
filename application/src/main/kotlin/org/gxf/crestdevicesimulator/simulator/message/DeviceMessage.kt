@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Contributors to the GXF project
+// SPDX-FileCopyrightText: Copyright Contributors to the GXF project
 //
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.message
@@ -6,6 +6,7 @@ package org.gxf.crestdevicesimulator.simulator.message
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
+@SuppressWarnings("kotlin:S117")
 @JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy::class)
 data class DeviceMessage(
     var A: List<Int> = listOf(3, 0, 0, 0, 0, 0, 0, 0),
@@ -189,5 +190,6 @@ data class DeviceMessage(
     }
 }
 
+@SuppressWarnings("kotlin:S117")
 @JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy::class)
 data class DeviceMessageDownlink(var DL: String = "0")
