@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
+import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.MessageHandler
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.io.Resource
@@ -28,9 +29,10 @@ class Simulator(
         // Start infinite message sending loop in separate thread
         // This ensures Spring Boot can complete startup and doesn't block on the infinite loop
         Thread.ofVirtual().start {
+            val simulatorState = SimulatorState(simulatorProperties.pskIdentity)
             while (true) {
                 logger.info { "Sending scheduled alarm message" }
-                messageHandler.sendMessage(message)
+                messageHandler.sendMessage(message, simulatorState)
 
                 logger.info { "Sleeping for: ${simulatorProperties.sleepDuration}" }
                 Thread.sleep(simulatorProperties.sleepDuration)

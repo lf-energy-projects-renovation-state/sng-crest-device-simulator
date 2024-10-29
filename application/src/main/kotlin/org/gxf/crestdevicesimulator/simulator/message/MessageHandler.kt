@@ -18,6 +18,7 @@ import org.eclipse.californium.core.coap.Request
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
+import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.response.CommandService
 import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
 import org.gxf.crestdevicesimulator.simulator.response.command.PskService
@@ -42,9 +43,12 @@ class MessageHandler(
         private const val DL_FIELD = "DL"
     }
 
-    fun sendMessage(jsonNode: JsonNode) {
-        val request = createRequest(jsonNode)
-        logger.info { "Sending request: $request" }
+    fun sendMessage(jsonNode: JsonNode, simulatorState: SimulatorState) {
+        val newMessage = jsonNode as ObjectNode
+        newMessage.replace("FMC", IntNode(simulatorState.fotaMessageCounter))
+        logger.info { "Sending request: $newMessage" }
+        val request = createRequest(newMessage)
+        simulatorState.resetUrcs()
 
         var coapClient: CoapClient? = null
 
@@ -52,7 +56,7 @@ class MessageHandler(
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
             logger.info { "Received Response: ${response.payload.decodeToString()} with status ${response.code}" }
-            handleResponse(response)
+            handleResponse(response, simulatorState)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -61,10 +65,8 @@ class MessageHandler(
     }
 
     fun createRequest(jsonNode: JsonNode): Request {
-        val newMessage = jsonNode as ObjectNode
-        newMessage.replace("FMC", IntNode(simulatorProperties.fotaMessageCounter))
         val payload =
-            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(newMessage)
+            if (simulatorProperties.produceValidCbor) CborFactory.createValidCbor(jsonNode)
             else CborFactory.createInvalidCbor()
 
         return Request.newPost()
@@ -72,12 +74,12 @@ class MessageHandler(
             .setPayload(payload)
     }
 
-    private fun handleResponse(response: CoapResponse) {
+    private fun handleResponse(response: CoapResponse, simulatorState: SimulatorState) {
         if (response.isSuccess) {
             val payload = String(response.payload)
             when {
                 PskExtractor.hasPskSetCommand(payload) -> {
-                    handlePskSetCommand(payload)
+                    handlePskSetCommand(payload, simulatorState)
                 }
                 pskService.isPendingKeyPresent() -> {
                     // Use new PSK with the next message, not in a response to the setter-msg TODO
@@ -85,15 +87,15 @@ class MessageHandler(
                     pskService.changeActiveKey()
                 }
                 commandService.hasRebootCommand(payload) -> {
-                    sendRebootSuccesMessage(payload)
+                    sendRebootSuccesMessage(payload, simulatorState)
                 }
             }
-            val returnCodes = handlers.map { handler -> handler.handleResponse(response, simulatorProperties) }
+            handlers.forEach { handler -> handler.handleResponse(response, simulatorState) }
             if (payload != 0.toString()) {
-                val newMessage = DeviceMessage(FMC = simulatorProperties.fotaMessageCounter)
-                newMessage.setURC(returnCodes, payload)
+                val newMessage = DeviceMessage(fmc = simulatorState.fotaMessageCounter)
+                newMessage.urc = simulatorState.getUrcListForDeviceMessage()
                 val jsonNode = mapper.valueToTree<JsonNode>(newMessage)
-                sendMessage(jsonNode)
+                sendMessage(jsonNode, simulatorState)
             }
         } else {
             logger.error { "Received error response with ${response.code}" }
@@ -104,36 +106,36 @@ class MessageHandler(
         }
     }
 
-    private fun handlePskSetCommand(payload: String) {
+    private fun handlePskSetCommand(payload: String, simulatorState: SimulatorState) {
         try {
             logger.info { "Device ${simulatorProperties.pskIdentity} needs key change" }
             pskService.preparePendingKey(payload)
-            sendPskSetSuccessMessage(payload)
+            sendPskSetSuccessMessage(payload, simulatorState)
         } catch (e: Exception) {
             logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
-            sendPskSetFailureMessage(payload)
+            sendPskSetFailureMessage(payload, simulatorState)
             pskService.setPendingKeyAsInvalid()
         }
     }
 
-    private fun sendPskSetSuccessMessage(pskCommand: String) {
+    private fun sendPskSetSuccessMessage(pskCommand: String, simulatorState: SimulatorState) {
         logger.info { "Sending success message for command $pskCommand" }
         val messageJsonNode = mapper.readTree(simulatorProperties.successMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_SUCCESS, pskCommand)
-        sendMessage(message)
+        sendMessage(message, simulatorState)
     }
 
-    private fun sendPskSetFailureMessage(pskCommand: String) {
+    private fun sendPskSetFailureMessage(pskCommand: String, simulatorState: SimulatorState) {
         logger.warn { "Sending failure message for command $pskCommand" }
         val messageJsonNode = mapper.readTree(simulatorProperties.failureMessage.inputStream)
         val message = updatePskCommandInMessage(messageJsonNode, URC_PSK_ERROR, pskCommand)
-        sendMessage(message)
+        sendMessage(message, simulatorState)
     }
 
-    private fun sendRebootSuccesMessage(command: String) {
+    private fun sendRebootSuccesMessage(command: String, simulatorState: SimulatorState) {
         logger.info { "Sending success message for command $command" }
         val message = mapper.readTree(simulatorProperties.rebootSuccessMessage.inputStream)
-        sendMessage(message)
+        sendMessage(message, simulatorState)
     }
 
     private fun updatePskCommandInMessage(message: JsonNode, urc: String, receivedCommand: String): JsonNode {

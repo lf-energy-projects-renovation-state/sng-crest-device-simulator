@@ -5,28 +5,33 @@ package org.gxf.crestdevicesimulator.simulator.response.handlers
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.eclipse.californium.core.CoapResponse
-import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
+import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.springframework.stereotype.Service
 
 @Service
 class FirmwareCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
+    private val numberPartSize = "OTA0000".length
 
-    override fun handleResponse(response: CoapResponse, simulatorProperties: SimulatorProperties): String {
-        val payload = String(response.payload)
-        val otaLine = payload.split(";", "!").firstOrNull { it.startsWith("OTA") }?.split(":")?.lastOrNull()
-        val firmwareDone = payload.endsWith(":DONE")
-
-        if (otaLine != null) {
-            logger.debug { "Received OTA line $otaLine" }
-            if (firmwareDone) {
-                logger.debug { "Firmware done, resetting FMC" }
-                simulatorProperties.fotaMessageCounter = 0
-            } else {
-                simulatorProperties.fotaMessageCounter++
-            }
+    override fun handleResponse(response: CoapResponse, simulatorState: SimulatorState) {
+        val payload = String(response.payload).dropWhile { it == '!' }
+        if (!payload.startsWith("OTA")) {
+            return
         }
 
-        return if (firmwareDone) "OTA:SUC" else ""
+        // If payload contains "OTA", we don't include any other commands
+        val otaNumberPart = payload.take(numberPartSize)
+        val base85Line = payload.drop(numberPartSize)
+        val firmwareDone = payload.endsWith(":DONE")
+
+        logger.debug { "Received OTA line $base85Line" }
+        simulatorState.addDownlink(otaNumberPart)
+        if (firmwareDone) {
+            logger.debug { "Firmware done, resetting FMC" }
+            simulatorState.fotaMessageCounter = 0
+            simulatorState.addUrc("OTA:SUC")
+        } else {
+            simulatorState.fotaMessageCounter++
+        }
     }
 }
