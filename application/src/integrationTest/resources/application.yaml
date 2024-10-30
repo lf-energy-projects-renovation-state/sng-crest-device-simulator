@@ -16,10 +16,6 @@ spring:
 
 simulator:
   config:
-    scheduled-message: "classpath:messages/kod-message.json"
-    success-message: "classpath:messages/psk-change-success-message.json"
-    failure-message: "classpath:messages/psk-change-failure-message.json"
-    reboot-success-message: "classpath:messages/kod-reboot-success-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
     # Uri of the target coap server

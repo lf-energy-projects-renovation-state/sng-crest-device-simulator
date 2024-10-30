@@ -12,6 +12,7 @@ import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.response.CommandService
 import org.gxf.crestdevicesimulator.simulator.response.command.PskService
+import org.gxf.crestdevicesimulator.simulator.response.handlers.FirmwareCommandHandler
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -35,14 +36,15 @@ class MessageHandlerTests {
 
     @Mock private lateinit var commandService: CommandService
 
+    @Spy private val handlers = listOf(FirmwareCommandHandler())
+
     @InjectMocks private lateinit var messageHandler: MessageHandler
 
     @Test
     fun shouldSendInvalidCborWhenTheMessageTypeIsInvalidCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(false)
-        val message = mapper.readTree(testFile())
 
-        val request = messageHandler.createRequest(message)
+        val request = messageHandler.createRequest(DeviceMessage())
 
         assertThat(request.payloadString).isEqualTo(CborFactory.INVALID_CBOR_MESSAGE)
     }
@@ -50,10 +52,11 @@ class MessageHandlerTests {
     @Test
     fun shouldSendCborFromConfiguredJsonFileWhenTheMessageTypeIsCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(true)
-        val message = mapper.readTree(testFile())
+        val message = DeviceMessage()
 
         val request = messageHandler.createRequest(message)
         val expected = CBORMapper().writeValueAsBytes(message)
+
         assertThat(request.payload).containsExactly(expected.toTypedArray())
     }
 
