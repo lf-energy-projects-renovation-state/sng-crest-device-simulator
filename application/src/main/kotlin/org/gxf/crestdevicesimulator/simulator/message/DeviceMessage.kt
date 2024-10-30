@@ -3,10 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.message
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
-@JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy::class)
+@JsonNaming(CrestNamingStrategy::class)
 data class DeviceMessage(
     var a: List<Int> = listOf(3, 0, 0, 0, 0, 0, 0, 0),
     var bat: Int = 3758,
@@ -182,12 +183,8 @@ data class DeviceMessage(
     var tsl: Int = 1693318384,
     var upt: Int = 100,
     var urc: List<Any> = listOf("INIT", DeviceMessageDownlink()),
-    var cID: Int = 49093243
-) {
-    fun setURC(returnCodes: List<String>, downlink: String) {
-        this.urc = returnCodes + DeviceMessageDownlink(downlink)
-    }
-}
+    @JsonProperty("cID") var cid: Int = 49093243
+)
 
 @JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy::class)
 data class DeviceMessageDownlink(var dl: String = "0")

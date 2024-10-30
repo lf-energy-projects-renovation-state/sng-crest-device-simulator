@@ -27,7 +27,7 @@ class FirmwareCommandHandler : CommandHandler {
         logger.debug { "Received OTA line $base85Line" }
         simulatorState.addDownlink(otaNumberPart)
         if (firmwareDone) {
-            logger.debug { "Firmware done, resetting FMC" }
+            logger.debug { "Firmware done, resetting FMC and sending OTA:SUC URC" }
             simulatorState.fotaMessageCounter = 0
             simulatorState.addUrc("OTA:SUC")
         } else {

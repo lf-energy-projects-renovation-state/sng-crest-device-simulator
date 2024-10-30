@@ -3,10 +3,6 @@
 #SPDX-License-Identifier: Apache-2.0
 simulator:
   config:
-    scheduled-message: "classpath:messages/kod-alarm-message.json"
-    success-message: "classpath:messages/psk-change-success-message.json"
-    failure-message: "classpath:messages/psk-change-failure-message.json"
-    reboot-success-message: "classpath:messages/kod-reboot-success-message.json"
     # Simulator will produce valid/invalid CBOR messages
     produce-valid-cbor: true
     # pre-shared key for coaps (dtls)

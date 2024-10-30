@@ -43,9 +43,8 @@ class MessageHandlerTests {
     @Test
     fun shouldSendInvalidCborWhenTheMessageTypeIsInvalidCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(false)
-        val message = mapper.readTree(testFile())
 
-        val request = messageHandler.createRequest(message)
+        val request = messageHandler.createRequest(DeviceMessage())
 
         assertThat(request.payloadString).isEqualTo(CborFactory.INVALID_CBOR_MESSAGE)
     }
@@ -53,10 +52,11 @@ class MessageHandlerTests {
     @Test
     fun shouldSendCborFromConfiguredJsonFileWhenTheMessageTypeIsCbor() {
         `when`(simulatorProperties.produceValidCbor).thenReturn(true)
-        val message = mapper.readTree(testFile())
+        val message = DeviceMessage()
 
         val request = messageHandler.createRequest(message)
         val expected = CBORMapper().writeValueAsBytes(message)
+
         assertThat(request.payload).containsExactly(expected.toTypedArray())
     }
 
