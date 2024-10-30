@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Component
 class Simulator(
     private val simulatorProperties: SimulatorProperties,
     private val messageHandler: MessageHandler,
-    private val mapper: ObjectMapper
 ) : CommandLineRunner {
 
     private val logger = KotlinLogging.logger {}
@@ -29,7 +27,7 @@ class Simulator(
         // Start infinite message sending loop in separate thread
         // This ensures Spring Boot can complete startup and doesn't block on the infinite loop
         Thread.ofVirtual().start {
-            val simulatorState = SimulatorState(simulatorProperties.pskIdentity)
+            val simulatorState = SimulatorState()
             var numberOfMessagesInBatch = 0
             while (true) {
                 logger.info { "Sending device message" }

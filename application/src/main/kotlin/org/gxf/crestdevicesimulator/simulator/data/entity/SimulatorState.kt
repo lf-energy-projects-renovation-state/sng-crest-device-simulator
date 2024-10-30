@@ -5,7 +5,7 @@ package org.gxf.crestdevicesimulator.simulator.data.entity
 
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 
-class SimulatorState(val deviceId: String, var fotaMessageCounter: Int = 0) {
+class SimulatorState(var fotaMessageCounter: Int = 0) {
 
     private val urcs = mutableListOf("INIT") // INIT = boot, will be reset for second message
     private val downlinks = mutableListOf<String>()

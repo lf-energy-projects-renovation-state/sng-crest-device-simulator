@@ -85,12 +85,12 @@ class MessageHandler(
         if (response.isSuccess) {
             val payload = String(response.payload)
             when {
+                // The PSK:SET command should be handled with the current PSK
                 PskExtractor.hasPskSetCommand(payload) -> {
                     handlePskSetCommand(payload, simulatorState)
                 }
+                // On the next response, activate the new PSK
                 pskService.isPendingKeyPresent() -> {
-                    // Use new PSK with the next message, not in a response to the setter-msg TODO
-                    // remove comment
                     pskService.changeActiveKey()
                 }
                 commandService.hasRebootCommand(payload) -> {
