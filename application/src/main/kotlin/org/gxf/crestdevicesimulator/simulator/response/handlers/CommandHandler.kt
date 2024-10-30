@@ -12,7 +12,6 @@ fun interface CommandHandler {
      *
      * @param response Response sent by the device service
      * @param simulatorState State variables of the simulator
-     * @return URC or empty string if nothing to report
      */
     fun handleResponse(response: CoapResponse, simulatorState: SimulatorState)
 }
