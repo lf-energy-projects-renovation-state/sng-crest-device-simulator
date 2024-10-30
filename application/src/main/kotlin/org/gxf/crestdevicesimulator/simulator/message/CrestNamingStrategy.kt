@@ -7,6 +7,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.NamingBase
 
 class CrestNamingStrategy : NamingBase() {
     override fun translate(propertyName: String?): String? {
-        return if (propertyName.equals("cid")) "cID" else propertyName?.uppercase()
+        return if (propertyName == "cid") "cID" else propertyName?.uppercase()
     }
 }
