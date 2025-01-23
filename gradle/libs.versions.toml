@@ -1,0 +1,47 @@
+[versions]
+californium = "3.12.1"
+commonsCodec = "1.17.2"
+dependency-management = "1.1.7"
+kotlin = "2.1.0"
+kotlin-logging = "7.0.3"
+mockk = "1.13.14"
+sonarqube = "6.0.1.5171"
+spotless = "7.0.1"
+spring-boot = "3.4.1"
+springmockk = "4.0.2"
+
+[libraries]
+awaitility = { group = "org.awaitility", name = "awaitility" }
+californiumCore =     { group = "org.eclipse.californium", name = "californium-core", version.ref ="californium" }
+californiumScandium = { group = "org.eclipse.californium", name = "scandium", version.ref ="californium" }
+commonsCodec = { group = "commons-codec", name = "commons-codec", version.ref = "commonsCodec" }
+flyway = { group = "org.flywaydb", name = "flyway-database-postgresql" }
+h2 = { group = "com.h2database", name = "h2" }
+jacksonDataformatCbor = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-cbor" }
+jakartaXmlBindApi = { group = "jakarta.xml.bind", name = "jakarta.xml.bind-api" }
+junitPlatformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "kotlin-logging" }
+micrometerPrometheusModule = { group = "io.micrometer", name = "micrometer-registry-prometheus" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+postgresql = { group = "org.postgresql", name = "postgresql" }
+springBootStarterActuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator" }
+springBootStarterDataJpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
+springBootStarterTest = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
+springBootStarterWeb = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
+springmockk = { group = "com.ninja-squad", name = "springmockk", version.ref = "springmockk" }
+
+[bundles]
+californium = ["californiumCore", "californiumScandium"]
+
+[plugins]
+dependencyManagement = { id = "io.spring.dependency-management", version.ref = "dependency-management" }
+eclipse = { id = "eclipse" }
+jacoco = { id = "jacoco" }
+jacocoReportAggregation = { id = "jacoco-report-aggregation" }
+jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+springBoot = { id = "org.springframework.boot", version.ref = "spring-boot" }

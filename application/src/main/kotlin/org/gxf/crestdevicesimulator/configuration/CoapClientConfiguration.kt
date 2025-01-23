@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean
 @org.springframework.context.annotation.Configuration
 class CoapClientConfiguration(
     private val simulatorProperties: SimulatorProperties,
-    private val pskRepository: PskRepository
+    private val pskRepository: PskRepository,
 ) {
 
     @Bean
@@ -19,7 +19,9 @@ class CoapClientConfiguration(
         val store = AdvancedSingleIdentityPskStore(simulatorProperties.pskIdentity)
         val savedKey =
             pskRepository.findFirstByIdentityAndStatusOrderByRevisionDesc(
-                simulatorProperties.pskIdentity, PreSharedKeyStatus.ACTIVE)
+                simulatorProperties.pskIdentity,
+                PreSharedKeyStatus.ACTIVE,
+            )
 
         if (savedKey == null) {
             val initialPreSharedKey =
@@ -28,7 +30,8 @@ class CoapClientConfiguration(
                     0,
                     simulatorProperties.pskKey,
                     simulatorProperties.pskSecret,
-                    PreSharedKeyStatus.ACTIVE)
+                    PreSharedKeyStatus.ACTIVE,
+                )
             pskRepository.save(initialPreSharedKey)
             store.key = simulatorProperties.pskKey
         } else {

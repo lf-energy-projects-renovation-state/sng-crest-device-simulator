@@ -10,6 +10,8 @@ class SimulatorState(var fotaMessageCounter: Int = 0) {
     private val urcs = mutableListOf("INIT") // INIT = boot, will be reset for second message
     private val downlinks = mutableListOf<String>()
 
+    private val alarmThresholds = mutableMapOf<Int, AlarmThresholdValues>()
+
     fun getUrcListForDeviceMessage(): List<Any> = urcs + listOf(DeviceMessageDownlink(downlinks.joinToString(";")))
 
     fun resetUrc() {
@@ -20,4 +22,10 @@ class SimulatorState(var fotaMessageCounter: Int = 0) {
     fun addUrc(urc: String) = apply { urcs += urc }
 
     fun addDownlink(downlink: String) = apply { downlinks += downlink }
+
+    fun addAlarmThresholds(alarmThresholdValues: AlarmThresholdValues) = apply {
+        alarmThresholds[alarmThresholdValues.index] = alarmThresholdValues
+    }
+
+    fun getAlarmThresholds(index: Int) = alarmThresholds[index]
 }

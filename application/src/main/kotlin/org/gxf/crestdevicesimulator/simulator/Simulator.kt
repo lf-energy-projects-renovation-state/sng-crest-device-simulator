@@ -11,10 +11,8 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 
 @Component
-class Simulator(
-    private val simulatorProperties: SimulatorProperties,
-    private val messageHandler: MessageHandler,
-) : CommandLineRunner {
+class Simulator(private val simulatorProperties: SimulatorProperties, private val messageHandler: MessageHandler) :
+    CommandLineRunner {
 
     private val logger = KotlinLogging.logger {}
 
