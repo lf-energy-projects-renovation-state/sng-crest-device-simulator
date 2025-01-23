@@ -4,6 +4,7 @@
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
 import org.assertj.core.api.Assertions.assertThat
+import org.gxf.crestdevicesimulator.simulator.data.entity.AlarmThresholdValues
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 import org.junit.jupiter.api.BeforeEach
@@ -25,9 +26,11 @@ class AlarmCommandHandlerTest {
     @Test
     fun `should handle alarm command`() {
         val command = "AL6:0,500,1000,1500,10"
+        val expectedAlarmThresholdValues = AlarmThresholdValues(6, 0, 500, 1000, 1500, 10)
 
         commandHandler.handleCommand(command, simulatorState)
 
+        assertThat(simulatorState.getAlarmThresholds(6)).isEqualTo(expectedAlarmThresholdValues)
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .contains(URC_SUCCESS)
             .contains(DeviceMessageDownlink(command))
