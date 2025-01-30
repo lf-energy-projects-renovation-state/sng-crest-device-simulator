@@ -23,8 +23,22 @@ class RebootCommandHandlerTest {
         simulatorState.resetUrc()
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD:REBOOT"])
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:REB", "CMD:RSP", "AL6:0,500,1000,1500,10"])
+    fun `canHandleCommand should return false when called with invalid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
     @Test
-    fun `should handle REBOOT command`() {
+    fun `handleCommand should add init urc when called with valid command`() {
         val command = "CMD:REBOOT"
 
         commandHandler.handleCommand(command, simulatorState)
@@ -35,8 +49,8 @@ class RebootCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["CMD:RSP", "AL6:0,500,1000,1500,10"])
-    fun `should not handle other commands`(command: String) {
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:REB", "CMD:RSP", "AL6:0,500,1000,1500,10"])
+    fun `handleCommand should not do anything when called with invalid command`(command: String) {
         commandHandler.handleCommand(command, simulatorState)
 
         assertThat(simulatorState.getUrcListForDeviceMessage())

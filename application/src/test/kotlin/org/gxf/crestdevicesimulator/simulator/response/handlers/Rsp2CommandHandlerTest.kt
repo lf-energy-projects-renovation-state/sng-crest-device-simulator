@@ -23,8 +23,22 @@ class Rsp2CommandHandlerTest {
         simulatorState.resetUrc()
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD:RSP2"])
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:RS", "CMD:RSP", "CMD:REBOOT"])
+    fun `canHandleCommand should return false when called with invalid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
     @Test
-    fun `should handle CMD RSP2 command`() {
+    fun `handleCommand should add success urc when called with valid command`() {
         val command = "CMD:RSP2"
 
         commandHandler.handleCommand(command, simulatorState)
@@ -35,8 +49,8 @@ class Rsp2CommandHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["CMD:REBOOT", "CMD:RSP"])
-    fun `should not handle other commands`(command: String) {
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:RS", "CMD:RSP", "CMD:REBOOT"])
+    fun `handleCommand should not do anything when called with invalid command`(command: String) {
         commandHandler.handleCommand(command, simulatorState)
 
         assertThat(simulatorState.getUrcListForDeviceMessage())

@@ -34,8 +34,35 @@ class PskCommandHandlerTest {
         simulatorState.resetUrc()
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"])
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings =
+            [
+                "PSK",
+                "PSK:",
+                "PSK:100",
+                "PSK:0123456789ABCDEF",
+                "PSK:0123456789ABCDEF:",
+                "PSK:0123456789ABCDEF:0123456789ABCDEF",
+                "CMD:REBOOT",
+                "CMD:RSP",
+                "PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:SET",
+            ]
+    )
+    fun `canHandleCommand should return false when called with invalid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
     @Test
-    fun `should handle PSK command`() {
+    fun `handleCommand should prepare pending key and add success urc when called with valid command`() {
         val hash = DigestUtils.sha256Hex("$SECRET$KEY")
         val command = "PSK:$KEY:$hash"
 
@@ -53,12 +80,18 @@ class PskCommandHandlerTest {
     @ValueSource(
         strings =
             [
+                "PSK",
+                "PSK:",
+                "PSK:100",
+                "PSK:0123456789ABCDEF",
+                "PSK:0123456789ABCDEF:",
+                "PSK:0123456789ABCDEF:0123456789ABCDEF",
                 "CMD:REBOOT",
-                "PSK:1234",
+                "CMD:RSP",
                 "PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:SET",
             ]
     )
-    fun `should not handle other commands`(command: String) {
+    fun `handleCommand should not do anything when called with invalid command`(command: String) {
         commandHandler.handleCommand(command, simulatorState)
 
         assertThat(simulatorState.getUrcListForDeviceMessage())

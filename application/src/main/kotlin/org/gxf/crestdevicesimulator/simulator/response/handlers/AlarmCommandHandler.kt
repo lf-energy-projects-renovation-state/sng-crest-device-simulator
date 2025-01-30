@@ -17,28 +17,31 @@ import org.springframework.stereotype.Service
 @Service
 class AlarmCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
-    private val commandRegex: Regex = "AL([2-7]):(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+)".toRegex()
+    private val commandRegex: Regex = "^AL([2-7]):(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+)$".toRegex()
+
+    override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            try {
-                handleAlarmCommand(command, simulatorState)
-            } catch (ex: InvalidCommandException) {
-                handleFailure(command, simulatorState)
-            }
+        if (!canHandleCommand(command)) {
+            logger.warn { "Alarm command handler can not handle command: $command" }
+            return
+        }
+        try {
+            handleAlarmCommand(command, simulatorState)
+        } catch (ex: InvalidCommandException) {
+            handleFailure(command, simulatorState)
         }
     }
-
-    private fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     private fun handleAlarmCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling alarm command: $command" }
         try {
             val alarmThresholds = parseAlarmThresholdValues(command)
             simulatorState.addAlarmThresholds(alarmThresholds)
-            simulatorState.addUrc("AL${alarmThresholds.index}:SET")
+            simulatorState.addUrc("AL${alarmThresholds.channel}:SET")
             simulatorState.addDownlink(command)
         } catch (ex: Exception) {
+            logger.error { ex }
             throw InvalidCommandException("Invalid alarm command", ex)
         }
     }

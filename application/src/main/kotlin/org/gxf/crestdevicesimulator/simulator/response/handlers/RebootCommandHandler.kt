@@ -3,21 +3,26 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.springframework.stereotype.Service
 
 @Service
 class RebootCommandHandler : CommandHandler {
+    private val logger = KotlinLogging.logger {}
+
+    override fun canHandleCommand(command: String) = command == CMD_REBOOT
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            handleRebootCommand(simulatorState)
+        if (!canHandleCommand(command)) {
+            logger.warn { "Reboot command handler can not handle command: $command" }
+            return
         }
+        handleRebootCommand(command, simulatorState)
     }
 
-    private fun canHandleCommand(command: String) = command.contains(CMD_REBOOT)
-
-    private fun handleRebootCommand(simulatorState: SimulatorState) {
+    fun handleRebootCommand(command: String, simulatorState: SimulatorState) {
+        logger.info { "Handling reboot command: $command" }
         simulatorState.addUrc("INIT")
         simulatorState.addUrc("WDR")
         simulatorState.addDownlink(CMD_REBOOT)
