@@ -4,9 +4,9 @@
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -50,8 +50,10 @@ class RspCommandHandlerTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["CMD", "CMD:", "CMD:RS", "CMD:RSP2", "CMD:REBOOT"])
-    fun `handleCommand should not do anything when called with invalid command`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .doesNotContain(URC_SUCCESS)

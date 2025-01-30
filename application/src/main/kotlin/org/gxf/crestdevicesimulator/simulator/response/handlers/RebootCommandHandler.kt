@@ -14,10 +14,8 @@ class RebootCommandHandler : CommandHandler {
     override fun canHandleCommand(command: String) = command == CMD_REBOOT
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (!canHandleCommand(command)) {
-            logger.warn { "Reboot command handler can not handle command: $command" }
-            return
-        }
+        require(canHandleCommand(command)) { "Reboot command handler can not handle command: $command" }
+
         handleRebootCommand(command, simulatorState)
     }
 

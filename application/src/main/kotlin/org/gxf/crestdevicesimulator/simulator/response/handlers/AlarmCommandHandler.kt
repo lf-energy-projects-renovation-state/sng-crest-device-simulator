@@ -22,10 +22,8 @@ class AlarmCommandHandler : CommandHandler {
     override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (!canHandleCommand(command)) {
-            logger.warn { "Alarm command handler can not handle command: $command" }
-            return
-        }
+        require(canHandleCommand(command)) { "Alarm command handler can not handle command: $command" }
+
         try {
             handleAlarmCommand(command, simulatorState)
         } catch (ex: InvalidCommandException) {
@@ -41,7 +39,6 @@ class AlarmCommandHandler : CommandHandler {
             simulatorState.addUrc("AL${alarmThresholds.channel}:SET")
             simulatorState.addDownlink(command)
         } catch (ex: Exception) {
-            logger.error { ex }
             throw InvalidCommandException("Invalid alarm command", ex)
         }
     }

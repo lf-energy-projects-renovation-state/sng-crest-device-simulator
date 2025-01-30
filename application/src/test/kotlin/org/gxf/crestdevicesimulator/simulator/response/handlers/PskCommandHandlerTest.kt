@@ -9,6 +9,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.apache.commons.codec.digest.DigestUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKey
 import org.gxf.crestdevicesimulator.simulator.data.entity.PreSharedKeyStatus
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
@@ -91,8 +92,10 @@ class PskCommandHandlerTest {
                 "PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:SET",
             ]
     )
-    fun `handleCommand should not do anything when called with invalid command`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .doesNotContain(URC_SUCCESS)

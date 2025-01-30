@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.*
 import org.gxf.crestdevicesimulator.simulator.data.entity.AlarmThresholdValues
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
@@ -80,8 +80,10 @@ class AlarmCommandHandlerTest {
         strings =
             ["AL", "AL:", "AL2:100", "AL3:100,200", "AL4:100,200,300", "AL5:100,200,300,400", "CMD:REBOOT", "CMD:RSP"]
     )
-    fun `handleCommand should not do anything when called with invalid command`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .doesNotContain(URC_SUCCESS)

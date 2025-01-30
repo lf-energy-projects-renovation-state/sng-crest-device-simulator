@@ -22,10 +22,8 @@ class RspCommandHandler : CommandHandler {
     override fun canHandleCommand(command: String) = command == CMD_RSP
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (!canHandleCommand(command)) {
-            logger.warn { "RSP command handler can not handle command: $command" }
-            return
-        }
+        require(canHandleCommand(command)) { "RSP command handler can not handle command: $command" }
+
         try {
             handleRspCommand(command, simulatorState)
         } catch (ex: Exception) {

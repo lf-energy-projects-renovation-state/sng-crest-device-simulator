@@ -21,10 +21,8 @@ class PskCommandHandler(private val pskService: PskService) : CommandHandler {
     override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (!canHandleCommand(command)) {
-            logger.warn { "PSK command handler can not handle command: $command" }
-            return
-        }
+        require(canHandleCommand(command)) { "PSK command handler can not handle command: $command" }
+
         try {
             handlePskCommand(command, simulatorState)
         } catch (ex: Exception) {
