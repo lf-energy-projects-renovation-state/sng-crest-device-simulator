@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.AlarmThresholdValues
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
