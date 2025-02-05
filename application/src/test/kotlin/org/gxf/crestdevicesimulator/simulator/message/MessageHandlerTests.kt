@@ -10,8 +10,6 @@ import org.eclipse.californium.core.CoapClient
 import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
-import org.gxf.crestdevicesimulator.simulator.response.CommandService
-import org.gxf.crestdevicesimulator.simulator.response.command.PskService
 import org.gxf.crestdevicesimulator.simulator.response.handlers.FirmwareCommandHandler
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,6 +18,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.util.ResourceUtils
 
 @ExtendWith(MockitoExtension::class)
@@ -32,9 +31,7 @@ class MessageHandlerTests {
 
     @Mock private lateinit var coapClientService: CoapClientService
 
-    @Mock private lateinit var pskService: PskService
-
-    @Mock private lateinit var commandService: CommandService
+    @Mock private lateinit var applicationEventPublisher: ApplicationEventPublisher
 
     @Spy private val handlers = listOf(FirmwareCommandHandler())
 

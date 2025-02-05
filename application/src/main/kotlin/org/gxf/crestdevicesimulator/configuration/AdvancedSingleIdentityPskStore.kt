@@ -33,7 +33,7 @@ class AdvancedSingleIdentityPskStore(private val identity: String) : AdvancedPsk
         hmacAlgorithm: String?,
         otherSecret: SecretKey?,
         seed: ByteArray?,
-        useExtendedMasterSecret: Boolean
+        useExtendedMasterSecret: Boolean,
     ): PskSecretResult {
         if (key.isEmpty()) {
             return PskSecretResult(cid, identity, SecretUtil.create(defaultKey.toByteArray(), ALGORITHM))

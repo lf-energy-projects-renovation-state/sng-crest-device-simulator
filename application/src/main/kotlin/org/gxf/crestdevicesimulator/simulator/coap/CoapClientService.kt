@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 class CoapClientService(
     private val simulatorProperties: SimulatorProperties,
     private val advancedSingleIdentityPskStore: AdvancedSingleIdentityPskStore,
-    private val configuration: Configuration
+    private val configuration: Configuration,
 ) {
 
     fun shutdownCoapClient(coapClient: CoapClient) {

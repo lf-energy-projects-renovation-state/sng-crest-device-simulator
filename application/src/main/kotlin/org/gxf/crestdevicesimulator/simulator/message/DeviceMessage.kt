@@ -96,7 +96,8 @@ data class DeviceMessage(
             2048,
             2048,
             2048,
-            2048),
+            2048,
+        ),
     var p2: List<Int> =
         listOf(
             1800,
@@ -170,7 +171,8 @@ data class DeviceMessage(
             2048,
             2048,
             2048,
-            2048),
+            2048,
+        ),
     var pwr: Int = 1,
     var rly: Int = 0,
     var rsrp: Int = -99,
@@ -183,7 +185,7 @@ data class DeviceMessage(
     var tsl: Int = 1693318384,
     var upt: Int = 100,
     var urc: List<Any> = listOf("INIT", DeviceMessageDownlink()),
-    @JsonProperty("cID") var cid: Int = 49093243
+    @JsonProperty("cID") var cid: Int = 49093243,
 )
 
 @JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy::class)

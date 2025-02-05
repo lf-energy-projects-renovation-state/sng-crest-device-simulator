@@ -14,31 +14,20 @@ import org.gxf.crestdevicesimulator.configuration.SimulatorProperties
 import org.gxf.crestdevicesimulator.simulator.CborFactory
 import org.gxf.crestdevicesimulator.simulator.coap.CoapClientService
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
-import org.gxf.crestdevicesimulator.simulator.response.CommandService
-import org.gxf.crestdevicesimulator.simulator.response.PskExtractor
-import org.gxf.crestdevicesimulator.simulator.response.command.PskService
+import org.gxf.crestdevicesimulator.simulator.event.MessageSentEvent
 import org.gxf.crestdevicesimulator.simulator.response.handlers.CommandHandler
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
 class MessageHandler(
     private val coapClientService: CoapClientService,
     private val simulatorProperties: SimulatorProperties,
-    private val pskService: PskService,
-    private val mapper: ObjectMapper,
-    private val commandService: CommandService,
     private val handlers: MutableList<out CommandHandler>,
-    private val jacksonObjectMapper: ObjectMapper
+    private val jacksonObjectMapper: ObjectMapper,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = KotlinLogging.logger {}
-
-    companion object {
-        private const val URC_FIELD = "URC"
-        private const val URC_PSK_SUCCESS = "PSK:SET"
-        private const val URC_PSK_ERROR = "PSK:EQER"
-        private const val REBOOT_SUCCESS = "INIT"
-        private const val DL_FIELD = "DL"
-    }
 
     fun sendMessage(simulatorState: SimulatorState): Boolean {
         val messageToBeSent = createMessageFromCurrentState(simulatorState)
@@ -51,11 +40,14 @@ class MessageHandler(
         try {
             coapClient = coapClientService.createCoapClient()
             val response = coapClient.advanced(request)
-            logger.info { "Received Response: ${response.payload.decodeToString()} with status ${response.code}" }
-            handleResponse(response, simulatorState)
-            immediateResponseRequested = String(response.payload).startsWith("!")
+            if (response.isSuccess) {
+                applicationEventPublisher.publishEvent(MessageSentEvent(messageToBeSent))
+                immediateResponseRequested = handleResponse(response, simulatorState)
+            } else {
+                logger.error { "Received error response with ${response.code}" }
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error(e) { "Exception occurred while trying to send a message." }
         } finally {
             if (coapClient != null) coapClientService.shutdownCoapClient(coapClient)
         }
@@ -81,62 +73,24 @@ class MessageHandler(
             .setPayload(payload)
     }
 
-    private fun handleResponse(response: CoapResponse, simulatorState: SimulatorState) {
-        if (response.isSuccess) {
-            val payload = String(response.payload)
-            when {
-                // The PSK:SET command should be handled with the current PSK
-                PskExtractor.hasPskSetCommand(payload) -> {
-                    handlePskSetCommand(payload, simulatorState)
-                }
-                // On the next response, activate the new PSK
-                pskService.isPendingKeyPresent() -> {
-                    pskService.changeActiveKey()
-                }
-                commandService.hasRebootCommand(payload) -> {
-                    sendRebootSuccesMessage(payload, simulatorState)
-                }
-            }
-            handlers.forEach { handler -> handler.handleResponse(response, simulatorState) }
-        } else {
-            logger.error { "Received error response with ${response.code}" }
-            if (pskService.isPendingKeyPresent()) {
-                logger.error { "Error received. Set pending key to invalid" }
-                pskService.setPendingKeyAsInvalid()
+    private fun handleResponse(response: CoapResponse, simulatorState: SimulatorState): Boolean {
+        val payload = String(response.payload)
+        logger.info { "Received Response: $payload with status ${response.code}" }
+        val immediateResponseRequested = payload.isImmediateResponseRequested()
+        handleDownlinks(payload.stripImmediateResponseMarker(), simulatorState)
+        return immediateResponseRequested
+    }
+
+    private fun String.isImmediateResponseRequested() = this.startsWith("!")
+
+    private fun String.stripImmediateResponseMarker() = this.replace("^!".toRegex(), "")
+
+    private fun handleDownlinks(downlinks: String, simulatorState: SimulatorState) {
+        val commands = downlinks.split(";")
+        commands.forEach { command ->
+            handlers.forEach { handler ->
+                if (handler.canHandleCommand(command)) handler.handleCommand(command, simulatorState)
             }
         }
-    }
-
-    private fun handlePskSetCommand(payload: String, simulatorState: SimulatorState) {
-        try {
-            logger.info { "Device ${simulatorProperties.pskIdentity} needs key change" }
-            pskService.preparePendingKey(payload)
-            sendPskSetSuccessMessage(payload, simulatorState)
-        } catch (e: Exception) {
-            logger.error(e) { "PSK change error, send failure message and set pending key status to invalid" }
-            sendPskSetFailureMessage(payload, simulatorState)
-            pskService.setPendingKeyAsInvalid()
-        }
-    }
-
-    private fun sendPskSetSuccessMessage(pskCommand: String, simulatorState: SimulatorState) {
-        logger.info { "Sending success message for command $pskCommand" }
-        simulatorState.addUrc(URC_PSK_SUCCESS)
-        simulatorState.addDownlink("PSK:####:SET")
-        sendMessage(simulatorState)
-    }
-
-    private fun sendPskSetFailureMessage(pskCommand: String, simulatorState: SimulatorState) {
-        logger.warn { "Sending failure message for command $pskCommand" }
-        simulatorState.addUrc(URC_PSK_ERROR)
-        simulatorState.addDownlink("PSK:####:SET")
-        sendMessage(simulatorState)
-    }
-
-    private fun sendRebootSuccesMessage(command: String, simulatorState: SimulatorState) {
-        logger.info { "Sending success message for command $command" }
-        simulatorState.addUrc(REBOOT_SUCCESS)
-        simulatorState.addDownlink("CMD:REBOOT")
-        sendMessage(simulatorState)
     }
 }

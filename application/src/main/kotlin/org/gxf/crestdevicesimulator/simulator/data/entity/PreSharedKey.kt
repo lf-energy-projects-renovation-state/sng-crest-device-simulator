@@ -17,5 +17,5 @@ class PreSharedKey(
     @Id val revision: Int,
     var preSharedKey: String,
     val secret: String,
-    @Enumerated(EnumType.STRING) var status: PreSharedKeyStatus
+    @Enumerated(EnumType.STRING) var status: PreSharedKeyStatus,
 )
