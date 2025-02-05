@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 @Service
 class PskCommandHandler(private val pskService: PskService) : CommandHandler {
     private val logger = KotlinLogging.logger {}
-    private val commandRegex = "^(?!.*:SET)PSK:([a-zA-Z0-9]{16}):([a-zA-Z0-9]{64})".toRegex()
+    private val commandRegex = "^(?!.*:SET)PSK:(?<key>[a-zA-Z0-9]{16}):(?<hash>[a-zA-Z0-9]{64})".toRegex()
 
     override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
