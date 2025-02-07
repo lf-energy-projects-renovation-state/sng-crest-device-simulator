@@ -4,6 +4,7 @@
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.AlarmThresholdValues
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
@@ -21,10 +22,25 @@ class InfoAlarmCommandHandlerTest {
     fun setUp() {
         simulatorState = SimulatorState()
         simulatorState.resetUrc()
+        simulatorState.resetAlarmThresholds()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["INFO:ALARM", "INFO:AL7"])
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["INFO", "INFO:", "INFO:AL", "INFO:AL10", "CMD:REBOOT", "CMD:RSP"])
+    fun `canHandleCommand should return false when called with invalid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
     }
 
     @Test
-    fun `should handle info alarm command`() {
+    fun `handleCommand should handle info alarm command`() {
         val command = "INFO:ALARM"
         val alarmThresholdValues = AlarmThresholdValues(6, 0, 500, 1000, 1500, 10)
         simulatorState.addAlarmThresholds(alarmThresholdValues)
@@ -39,7 +55,7 @@ class InfoAlarmCommandHandlerTest {
     }
 
     @Test
-    fun `should handle info alarm command for a specific alarm`() {
+    fun `handleCommand should handle info alarm command for a specific alarm`() {
         val command = "INFO:AL7"
         val alarmThresholdValues = AlarmThresholdValues(7, 0, 500, 1000, 1500, 10)
         simulatorState.addAlarmThresholds(alarmThresholdValues)
@@ -51,9 +67,11 @@ class InfoAlarmCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["CMD:REBOOT", "CMD:RSP"])
-    fun `should not handle other commands`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    @ValueSource(strings = ["INFO", "INFO:", "INFO:AL", "INFO:AL10", "CMD:REBOOT", "CMD:RSP"])
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage()).doesNotContain(DeviceMessageDownlink(command))
     }

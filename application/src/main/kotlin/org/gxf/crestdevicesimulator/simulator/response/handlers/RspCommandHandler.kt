@@ -19,17 +19,17 @@ import org.springframework.stereotype.Service
 class RspCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
 
+    override fun canHandleCommand(command: String) = command == CMD_RSP
+
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            try {
-                handleRspCommand(command, simulatorState)
-            } catch (ex: Exception) {
-                handleFailure(command, simulatorState)
-            }
+        require(canHandleCommand(command)) { "RSP command handler can not handle command: $command" }
+
+        try {
+            handleRspCommand(command, simulatorState)
+        } catch (ex: Exception) {
+            handleFailure(command, simulatorState)
         }
     }
-
-    private fun canHandleCommand(command: String) = command == CMD_RSP
 
     private fun handleRspCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling RSP command: $command" }

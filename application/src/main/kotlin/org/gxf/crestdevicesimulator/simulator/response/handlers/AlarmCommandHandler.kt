@@ -17,26 +17,28 @@ import org.springframework.stereotype.Service
 @Service
 class AlarmCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
-    private val commandRegex: Regex = "AL([2-7]):(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+),(-?\\d+)".toRegex()
+    private val commandRegex: Regex =
+        "^AL(?<channel>[2-7]):(?<veryLow>-?\\d+),(?<low>-?\\d+),(?<high>-?\\d+),(?<veryHigh>-?\\d+),(?<hysteresis>-?\\d+)$"
+            .toRegex()
+
+    override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            try {
-                handleAlarmCommand(command, simulatorState)
-            } catch (ex: InvalidCommandException) {
-                handleFailure(command, simulatorState)
-            }
+        require(canHandleCommand(command)) { "Alarm command handler can not handle command: $command" }
+
+        try {
+            handleAlarmCommand(command, simulatorState)
+        } catch (ex: InvalidCommandException) {
+            handleFailure(command, simulatorState)
         }
     }
-
-    private fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     private fun handleAlarmCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling alarm command: $command" }
         try {
             val alarmThresholds = parseAlarmThresholdValues(command)
             simulatorState.addAlarmThresholds(alarmThresholds)
-            simulatorState.addUrc("AL${alarmThresholds.index}:SET")
+            simulatorState.addUrc("AL${alarmThresholds.channel}:SET")
             simulatorState.addDownlink(command)
         } catch (ex: Exception) {
             throw InvalidCommandException("Invalid alarm command", ex)
@@ -53,12 +55,12 @@ class AlarmCommandHandler : CommandHandler {
     private fun parseAlarmThresholdValues(command: String): AlarmThresholdValues {
         val regexGroups = commandRegex.findAll(command).first().groups
         return AlarmThresholdValues(
-            regexGroups[1]!!.value.toInt(),
-            regexGroups[2]!!.value.toInt(),
-            regexGroups[3]!!.value.toInt(),
-            regexGroups[4]!!.value.toInt(),
-            regexGroups[5]!!.value.toInt(),
-            regexGroups[6]!!.value.toInt(),
+            regexGroups["channel"]!!.value.toInt(),
+            regexGroups["veryLow"]!!.value.toInt(),
+            regexGroups["low"]!!.value.toInt(),
+            regexGroups["high"]!!.value.toInt(),
+            regexGroups["veryHigh"]!!.value.toInt(),
+            regexGroups["hysteresis"]!!.value.toInt(),
         )
     }
 }

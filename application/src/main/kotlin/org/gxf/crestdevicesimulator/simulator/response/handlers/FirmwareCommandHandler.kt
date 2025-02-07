@@ -13,10 +13,10 @@ class FirmwareCommandHandler : CommandHandler {
 
     private val numberPartSize = "OTA0000".length
 
+    override fun canHandleCommand(command: String) = command.startsWith("OTA")
+
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (!command.startsWith("OTA")) {
-            return
-        }
+        require(canHandleCommand(command)) { "Firmware command handler can not handle command: $command" }
 
         // If payload contains "OTA", we don't include any other commands
         val otaNumberPart = command.take(numberPartSize)

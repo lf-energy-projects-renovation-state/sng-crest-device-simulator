@@ -47,7 +47,7 @@ class MessageHandler(
                 logger.error { "Received error response with ${response.code}" }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error(e) { "Exception occurred while trying to send a message." }
         } finally {
             if (coapClient != null) coapClientService.shutdownCoapClient(coapClient)
         }
@@ -81,14 +81,16 @@ class MessageHandler(
         return immediateResponseRequested
     }
 
-    private fun Boolean.toInt() = if (this) 1 else 0
-
     private fun String.isImmediateResponseRequested() = this.startsWith("!")
 
-    private fun String.stripImmediateResponseMarker() = this.drop(this.isImmediateResponseRequested().toInt())
+    private fun String.stripImmediateResponseMarker() = this.replace("^!".toRegex(), "")
 
     private fun handleDownlinks(downlinks: String, simulatorState: SimulatorState) {
         val commands = downlinks.split(";")
-        commands.forEach { command -> handlers.forEach { handler -> handler.handleCommand(command, simulatorState) } }
+        commands.forEach { command ->
+            handlers.forEach { handler ->
+                if (handler.canHandleCommand(command)) handler.handleCommand(command, simulatorState)
+            }
+        }
     }
 }

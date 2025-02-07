@@ -19,17 +19,16 @@ class InfoAlarmCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
     private val commandRegex: Regex = "INFO:AL([2-7]|ARM)".toRegex()
 
+    override fun canHandleCommand(command: String) = commandRegex.matches(command)
+
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            try {
-                handleInfoAlarmCommand(command, simulatorState)
-            } catch (ex: InvalidCommandException) {
-                handleFailure(command, simulatorState)
-            }
+        require(canHandleCommand(command)) { "Info alarm command handler can not handle command: $command" }
+        try {
+            handleInfoAlarmCommand(command, simulatorState)
+        } catch (ex: InvalidCommandException) {
+            handleFailure(command, simulatorState)
         }
     }
-
-    private fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     private fun handleInfoAlarmCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling info alarm command: $command" }
@@ -48,7 +47,6 @@ class InfoAlarmCommandHandler : CommandHandler {
 
     private fun handleFailure(command: String, simulatorState: SimulatorState) {
         logger.warn { "Handling failure for info alarm command: $command" }
-        // TODO - Checken of dit inderdaad de juiste URC voor dit commando is…
         simulatorState.addUrc("INFO:DLER")
         simulatorState.addDownlink(command.betweenQuotes())
     }
@@ -69,5 +67,5 @@ class InfoAlarmCommandHandler : CommandHandler {
     private fun String.betweenBraces() = "{$this}"
 
     private fun AlarmThresholdValues.toJsonString() =
-        "\"AL${this.index}\":[${this.veryLow},${this.low},${this.high},${this.veryHigh},${this.hysteresis}]"
+        "\"AL${this.channel}\":[${this.veryLow},${this.low},${this.high},${this.veryHigh},${this.hysteresis}]"
 }

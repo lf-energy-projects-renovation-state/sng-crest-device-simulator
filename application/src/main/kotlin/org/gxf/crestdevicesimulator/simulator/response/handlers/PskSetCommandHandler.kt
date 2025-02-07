@@ -17,21 +17,20 @@ import org.springframework.stereotype.Service
  */
 @Service
 class PskSetCommandHandler(val pskService: PskService) : CommandHandler {
-
     private val logger = KotlinLogging.logger {}
-    private val commandRegex = "PSK:([a-zA-Z0-9]{16}):([a-zA-Z0-9]{64}):SET".toRegex()
+    private val commandRegex = "^PSK:(?<key>[a-zA-Z0-9]{16}):(?<hash>[a-zA-Z0-9]{64}):SET".toRegex()
+
+    override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     override fun handleCommand(command: String, simulatorState: SimulatorState) {
-        if (canHandleCommand(command)) {
-            try {
-                handlePskSetCommand(command, simulatorState)
-            } catch (ex: Exception) {
-                handleFailure(command, simulatorState, ex)
-            }
+        require(canHandleCommand(command)) { "PSK SET command handler can not handle command: $command" }
+
+        try {
+            handlePskSetCommand(command, simulatorState)
+        } catch (ex: Exception) {
+            handleFailure(command, simulatorState, ex)
         }
     }
-
-    private fun canHandleCommand(command: String) = commandRegex.matches(command)
 
     private fun handlePskSetCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling PSK SET command: $command" }

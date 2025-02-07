@@ -4,7 +4,7 @@
 package org.gxf.crestdevicesimulator.simulator.data.entity
 
 data class AlarmThresholdValues(
-    val index: Int,
+    val channel: Int,
     val veryLow: Int,
     val low: Int,
     val high: Int,

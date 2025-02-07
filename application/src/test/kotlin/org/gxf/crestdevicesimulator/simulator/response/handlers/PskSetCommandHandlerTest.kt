@@ -10,6 +10,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.justRun
 import org.apache.commons.codec.digest.DigestUtils
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 import org.gxf.crestdevicesimulator.simulator.response.exception.InvalidPskEqualityException
@@ -36,8 +37,41 @@ class PskSetCommandHandlerTest {
         simulatorState.resetUrc()
     }
 
+    @ParameterizedTest
+    @ValueSource(
+        strings = ["PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:SET"]
+    )
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings =
+            ["PSK", "PSK:", "PSK:100", "PSK:0123456789ABCDEF", "PSK:0123456789ABCDEF:", "PSK:0123456789ABCDEF:SET"]
+    )
+    fun `canHandleCommand should return false when called with incomplete command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings =
+            [
+                "CMD:REBOOT",
+                "CMD:RSP",
+                "PSK:0123456789ABCDEF:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+            ]
+    )
+    fun `canHandleCommand should return false when called with other command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
     @Test
-    fun `should handle command when psk set command is valid`() {
+    fun `handleCommand should verify pending key and add success urc when command is valid`() {
         val hash = DigestUtils.sha256Hex("$SECRET$KEY")
         val command = "PSK:$KEY:$hash:SET"
 
@@ -51,7 +85,7 @@ class PskSetCommandHandlerTest {
     }
 
     @Test
-    fun `should handle command when psk set command contains invalid key`() {
+    fun `handleCommand should set pending key to invalid and add equality error to urc when command contains invalid key`() {
         val invalidKey = "FEDCBA9876543210"
         val hash = DigestUtils.sha256Hex("$SECRET$KEY")
         val command = "PSK:$invalidKey:$hash:SET"
@@ -67,7 +101,7 @@ class PskSetCommandHandlerTest {
     }
 
     @Test
-    fun `should handle command when psk set command contains invalid hash`() {
+    fun `handleCommand should set pending key to invalid and add hash error to urc when command contains invalid hash`() {
         val hash = DigestUtils.sha256Hex("invalid")
         val command = "PSK:$KEY:$hash:SET"
 
@@ -82,7 +116,7 @@ class PskSetCommandHandlerTest {
     }
 
     @Test
-    fun `should handle command when some other error occurs`() {
+    fun `handleCommand should set pending key to invalid and add downlink error to urc when some other error occurs`() {
         val hash = DigestUtils.sha256Hex("$SECRET$KEY")
         val command = "PSK:$KEY:$hash:SET"
 
@@ -101,8 +135,10 @@ class PskSetCommandHandlerTest {
         strings =
             ["CMD:REBOOT", "PSK:1234", "PSK:$KEY:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF"]
     )
-    fun `should not handle other commands`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .doesNotContain(URC_SUCCESS)

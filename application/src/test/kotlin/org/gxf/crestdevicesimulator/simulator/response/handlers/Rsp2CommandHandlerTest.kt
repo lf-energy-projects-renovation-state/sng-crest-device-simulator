@@ -4,9 +4,9 @@
 package org.gxf.crestdevicesimulator.simulator.response.handlers
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.gxf.crestdevicesimulator.simulator.data.entity.SimulatorState
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -23,8 +23,22 @@ class Rsp2CommandHandlerTest {
         simulatorState.resetUrc()
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD:RSP2"])
+    fun `canHandleCommand should return true when called with valid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:RS", "CMD:RSP", "CMD:REBOOT"])
+    fun `canHandleCommand should return false when called with invalid command`(command: String) {
+        val actualResult = commandHandler.canHandleCommand(command)
+        assertThat(actualResult).isFalse()
+    }
+
     @Test
-    fun `should handle CMD RSP2 command`() {
+    fun `handleCommand should add success urc when called with valid command`() {
         val command = "CMD:RSP2"
 
         commandHandler.handleCommand(command, simulatorState)
@@ -35,9 +49,11 @@ class Rsp2CommandHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["CMD:REBOOT", "CMD:RSP"])
-    fun `should not handle other commands`(command: String) {
-        commandHandler.handleCommand(command, simulatorState)
+    @ValueSource(strings = ["CMD", "CMD:", "CMD:RS", "CMD:RSP", "CMD:REBOOT"])
+    fun `handleCommand should throw an exception and not change simulator state when called with invalid command`(
+        command: String
+    ) {
+        assertThatIllegalArgumentException().isThrownBy { commandHandler.handleCommand(command, simulatorState) }
 
         assertThat(simulatorState.getUrcListForDeviceMessage())
             .doesNotContain(URC_SUCCESS)
