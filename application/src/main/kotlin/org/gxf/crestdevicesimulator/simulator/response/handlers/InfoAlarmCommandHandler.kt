@@ -33,10 +33,14 @@ class InfoAlarmCommandHandler : CommandHandler {
     private fun handleInfoAlarmCommand(command: String, simulatorState: SimulatorState) {
         logger.info { "Handling info alarm command: $command" }
         try {
-            simulatorState.addDownlink(command.betweenQuotes())
+            simulatorState.addDownlink(command.inQuotes())
             if (isForSpecificAlarm(command)) {
-                val index: Int = getIndexFromCommand(command)
-                simulatorState.addDownlink(simulatorState.getAlarmThresholds(index)!!.toJsonString().betweenBraces())
+                val channel: Int = getChannelFromCommand(command)
+                val thresholds =
+                    checkNotNull(simulatorState.getAlarmThresholds(channel)) {
+                        "Alarm thresholds for channel $channel not present."
+                    }
+                simulatorState.addDownlink(thresholds.toJsonString().inBraces())
             } else {
                 simulatorState.addDownlink(simulatorState.getAlarmThresholds().values.toJsonString())
             }
@@ -48,23 +52,21 @@ class InfoAlarmCommandHandler : CommandHandler {
     private fun handleFailure(command: String, simulatorState: SimulatorState) {
         logger.warn { "Handling failure for info alarm command: $command" }
         simulatorState.addUrc("INFO:DLER")
-        simulatorState.addDownlink(command.betweenQuotes())
+        simulatorState.addDownlink(command.inQuotes())
     }
 
     private fun isForSpecificAlarm(command: String) = !isForAllAlarms(command)
 
     private fun isForAllAlarms(command: String) = command.contains("ALARM")
 
-    private fun getIndexFromCommand(command: String) = command.substringAfter("AL").substringBefore(":").toInt()
+    private fun getChannelFromCommand(command: String) = command.substringAfter("AL").substringBefore(":").toInt()
 
-    private fun MutableCollection<AlarmThresholdValues>.toJsonString(): String {
-        val values = this.joinToString(",") { it.toJsonString() }
-        return "{$values}"
-    }
+    private fun MutableCollection<AlarmThresholdValues>.toJsonString() =
+        this.joinToString(",") { it.toJsonString() }.inBraces()
 
-    private fun String.betweenQuotes() = "\"$this\""
+    private fun String.inQuotes() = "\"$this\""
 
-    private fun String.betweenBraces() = "{$this}"
+    private fun String.inBraces() = "{$this}"
 
     private fun AlarmThresholdValues.toJsonString() =
         "\"AL${this.channel}\":[${this.veryLow},${this.low},${this.high},${this.veryHigh},${this.hysteresis}]"

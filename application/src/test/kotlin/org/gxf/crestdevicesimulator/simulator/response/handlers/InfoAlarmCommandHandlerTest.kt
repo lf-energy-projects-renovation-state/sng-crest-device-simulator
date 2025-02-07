@@ -29,14 +29,14 @@ class InfoAlarmCommandHandlerTest {
     @ValueSource(strings = ["INFO:ALARM", "INFO:AL7"])
     fun `canHandleCommand should return true when called with valid command`(command: String) {
         val actualResult = commandHandler.canHandleCommand(command)
-        assertThat(actualResult).isTrue()
+        assertThat(actualResult).isTrue
     }
 
     @ParameterizedTest
     @ValueSource(strings = ["INFO", "INFO:", "INFO:AL", "INFO:AL10", "CMD:REBOOT", "CMD:RSP"])
     fun `canHandleCommand should return false when called with invalid command`(command: String) {
         val actualResult = commandHandler.canHandleCommand(command)
-        assertThat(actualResult).isFalse()
+        assertThat(actualResult).isFalse
     }
 
     @Test
@@ -48,9 +48,13 @@ class InfoAlarmCommandHandlerTest {
         commandHandler.handleCommand(command, simulatorState)
 
         val expectedDownlink =
-            "\"INFO:ALARM\"," +
-                "{\"AL0\":[0,0,0,0,0],\"AL1\":[0,0,0,0,0],\"AL2\":[0,0,0,0,0],\"AL3\":[0,0,0,0,0]," +
-                "\"AL4\":[0,0,0,0,0],\"AL5\":[0,0,0,0,0],\"AL6\":[0,500,1000,1500,10],\"AL7\":[0,0,0,0,0]}"
+            """
+            "INFO:ALARM",{"AL0":[0,0,0,0,0],"AL1":[0,0,0,0,0],"AL2":[0,0,0,0,0],"AL3":[0,0,0,0,0],
+            "AL4":[0,0,0,0,0],"AL5":[0,0,0,0,0],"AL6":[0,500,1000,1500,10],"AL7":[0,0,0,0,0]}
+        """
+                .trimIndent()
+                .replace("\n", "")
+                .replace("\r", "")
         assertThat(simulatorState.getUrcListForDeviceMessage()).contains(DeviceMessageDownlink(expectedDownlink))
     }
 
@@ -62,7 +66,7 @@ class InfoAlarmCommandHandlerTest {
 
         commandHandler.handleCommand(command, simulatorState)
 
-        val expectedDownlink = "\"INFO:AL7\",{\"AL7\":[0,500,1000,1500,10]}"
+        val expectedDownlink = """"INFO:AL7",{"AL7":[0,500,1000,1500,10]}"""
         assertThat(simulatorState.getUrcListForDeviceMessage()).contains(DeviceMessageDownlink(expectedDownlink))
     }
 
