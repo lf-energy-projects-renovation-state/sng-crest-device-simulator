@@ -28,7 +28,7 @@ class AlarmCommandHandler : CommandHandler {
 
         try {
             handleAlarmCommand(command, simulatorState)
-        } catch (ex: InvalidCommandException) {
+        } catch (ex: Exception) {
             handleFailure(command, simulatorState)
         }
     }

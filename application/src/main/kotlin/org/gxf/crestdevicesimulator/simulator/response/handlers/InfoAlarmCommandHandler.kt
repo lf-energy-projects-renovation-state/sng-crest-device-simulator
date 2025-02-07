@@ -25,7 +25,7 @@ class InfoAlarmCommandHandler : CommandHandler {
         require(canHandleCommand(command)) { "Info alarm command handler can not handle command: $command" }
         try {
             handleInfoAlarmCommand(command, simulatorState)
-        } catch (ex: InvalidCommandException) {
+        } catch (ex: Exception) {
             handleFailure(command, simulatorState)
         }
     }
