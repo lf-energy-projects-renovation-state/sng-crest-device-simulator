@@ -19,8 +19,7 @@ class RebootCommandHandlerTest {
 
     @BeforeEach
     fun setUp() {
-        simulatorState = SimulatorState()
-        simulatorState.resetUrc()
+        simulatorState = SimulatorState(urcs = mutableListOf())
     }
 
     @ParameterizedTest

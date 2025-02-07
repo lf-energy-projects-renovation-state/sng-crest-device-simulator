@@ -20,9 +20,7 @@ class InfoAlarmCommandHandlerTest {
 
     @BeforeEach
     fun setUp() {
-        simulatorState = SimulatorState()
-        simulatorState.resetUrc()
-        simulatorState.resetAlarmThresholds()
+        simulatorState = SimulatorState(urcs = mutableListOf())
     }
 
     @ParameterizedTest
