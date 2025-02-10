@@ -19,8 +19,7 @@ class Rsp2CommandHandlerTest {
 
     @BeforeEach
     fun setUp() {
-        simulatorState = SimulatorState()
-        simulatorState.resetUrc()
+        simulatorState = SimulatorState(urcs = mutableListOf())
     }
 
     @ParameterizedTest

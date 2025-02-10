@@ -5,26 +5,20 @@ package org.gxf.crestdevicesimulator.simulator.data.entity
 
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 
-class SimulatorState(var fotaMessageCounter: Int = 0) {
-
-    private val urcs = mutableListOf("INIT") // INIT = boot, will be reset for second message
-    private val downlinks = mutableListOf<String>()
-
-    private val alarmThresholds = defaultAlarmThresholds()
+/**
+ * Simulator state
+ *
+ * @property fotaMessageCounter the counter used for firmware updates, defaults to 0
+ * @property urcs the URCs that will be sent in the next message, defaults to INIT at startup
+ */
+class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableList<String> = mutableListOf("INIT")) {
+    private val downlinks: MutableList<String> = mutableListOf()
+    private val alarmThresholds: MutableMap<Int, AlarmThresholdValues> = defaultAlarmThresholds()
 
     private fun defaultAlarmThresholds() =
-        mutableMapOf(
-            2 to defaultAlarmThresholdValues(2),
-            3 to defaultAlarmThresholdValues(3),
-            4 to defaultAlarmThresholdValues(4),
-            5 to defaultAlarmThresholdValues(5),
-            6 to defaultAlarmThresholdValues(6),
-            7 to defaultAlarmThresholdValues(7),
-        )
+        (0..7).associateWith { AlarmThresholdValues(it, 0, 0, 0, 0, 0) }.toMutableMap()
 
-    private fun defaultAlarmThresholdValues(channel: Int) = AlarmThresholdValues(channel, 0, 0, 0, 0, 0)
-
-    fun getUrcListForDeviceMessage(): List<Any> = urcs + listOf(DeviceMessageDownlink(downlinks.joinToString(";")))
+    fun getUrcListForDeviceMessage(): List<Any> = urcs + DeviceMessageDownlink(downlinks.joinToString(","))
 
     fun resetUrc() {
         urcs.clear()
@@ -39,10 +33,7 @@ class SimulatorState(var fotaMessageCounter: Int = 0) {
         alarmThresholds[alarmThresholdValues.channel] = alarmThresholdValues
     }
 
-    fun getAlarmThresholds(index: Int) = alarmThresholds[index]
+    fun getAlarmThresholds() = alarmThresholds
 
-    fun resetAlarmThresholds() {
-        alarmThresholds.clear()
-        alarmThresholds += defaultAlarmThresholds()
-    }
+    fun getAlarmThresholds(index: Int) = alarmThresholds[index]
 }
