@@ -15,7 +15,7 @@ import org.gxf.crestdevicesimulator.simulator.response.exception.InvalidCommandE
  * * On success: a downlink containing the alarm thresholds will be returned in the next message sent
  * * On failure: "INFO:DLER" URC will be returned in the next message sent
  */
-class InfoAlarmCommandHandler : CommandHandler {
+class InfoAlarmsCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
     private val commandRegex: Regex = "INFO:AL([2-7]|ARMS)".toRegex()
 
