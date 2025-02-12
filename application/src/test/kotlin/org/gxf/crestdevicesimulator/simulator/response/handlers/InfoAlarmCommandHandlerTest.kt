@@ -24,7 +24,7 @@ class InfoAlarmCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["INFO:ALARM", "INFO:AL7"])
+    @ValueSource(strings = ["INFO:ALARMS", "INFO:AL7"])
     fun `canHandleCommand should return true when called with valid command`(command: String) {
         val actualResult = commandHandler.canHandleCommand(command)
         assertThat(actualResult).isTrue
@@ -38,8 +38,8 @@ class InfoAlarmCommandHandlerTest {
     }
 
     @Test
-    fun `handleCommand should handle info alarm command`() {
-        val command = "INFO:ALARM"
+    fun `handleCommand should handle info alarms command`() {
+        val command = "INFO:ALARMS"
         val alarmThresholdValues = AlarmThresholdValues(6, 0, 500, 1000, 1500, 10)
         simulatorState.addAlarmThresholds(alarmThresholdValues)
 
@@ -47,7 +47,7 @@ class InfoAlarmCommandHandlerTest {
 
         val expectedDownlink =
             """
-            "INFO:ALARM",{"AL0":[0,0,0,0,0],"AL1":[0,0,0,0,0],"AL2":[0,0,0,0,0],"AL3":[0,0,0,0,0],
+            "INFO:ALARMS",{"AL0":[0,0,0,0,0],"AL1":[0,0,0,0,0],"AL2":[0,0,0,0,0],"AL3":[0,0,0,0,0],
             "AL4":[0,0,0,0,0],"AL5":[0,0,0,0,0],"AL6":[0,500,1000,1500,10],"AL7":[0,0,0,0,0]}
         """
                 .trimIndent()

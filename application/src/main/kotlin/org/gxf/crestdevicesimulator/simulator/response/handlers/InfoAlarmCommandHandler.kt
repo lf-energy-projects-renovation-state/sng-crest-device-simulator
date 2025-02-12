@@ -17,7 +17,7 @@ import org.gxf.crestdevicesimulator.simulator.response.exception.InvalidCommandE
  */
 class InfoAlarmCommandHandler : CommandHandler {
     private val logger = KotlinLogging.logger {}
-    private val commandRegex: Regex = "INFO:AL([2-7]|ARM)".toRegex()
+    private val commandRegex: Regex = "INFO:AL([2-7]|ARMS)".toRegex()
 
     override fun canHandleCommand(command: String) = commandRegex.matches(command)
 
