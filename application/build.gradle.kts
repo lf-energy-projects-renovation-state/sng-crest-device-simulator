@@ -2,7 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-plugins { id("org.springframework.boot") }
+plugins {
+    alias(libs.plugins.springBoot)
+}
 
 dependencies {
     implementation(libs.bundles.californium)
