@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.springBootStarterActuator)
     implementation(libs.springBootStarterDataJpa)
     implementation(libs.springBootStarterWeb)
+    implementation(libs.jacksonKotlinModule)
 
     runtimeOnly(libs.flyway)
     runtimeOnly(libs.micrometerPrometheusModule)

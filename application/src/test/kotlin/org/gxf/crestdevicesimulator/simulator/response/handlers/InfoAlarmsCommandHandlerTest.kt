@@ -40,20 +40,20 @@ class InfoAlarmsCommandHandlerTest {
     @Test
     fun `handleCommand should handle info alarms command`() {
         val command = "INFO:ALARMS"
-        val alarmThresholdValues = AlarmThresholdValues(6, 0, 500, 1000, 1500, 10)
+        val alarmIndex = 6
+        val alarmThresholdValues = AlarmThresholdValues(alarmIndex, 0, 500, 1000, 1500, 10)
         simulatorState.addAlarmThresholds(alarmThresholdValues)
 
         commandHandler.handleCommand(command, simulatorState)
 
-        val expectedDownlink =
-            """
-            "INFO:ALARMS",{"AL0":[0,0,0,0,0],"AL1":[0,0,0,0,0],"AL2":[0,0,0,0,0],"AL3":[0,0,0,0,0],
-            "AL4":[0,0,0,0,0],"AL5":[0,0,0,0,0],"AL6":[0,500,1000,1500,10],"AL7":[0,0,0,0,0]}
-        """
-                .trimIndent()
-                .replace("\n", "")
-                .replace("\r", "")
-        assertThat(simulatorState.getUrcListForDeviceMessage()).contains(DeviceMessageDownlink(expectedDownlink))
+        val dlUrc =
+            simulatorState.getUrcListForDeviceMessage().find { it is DeviceMessageDownlink } as DeviceMessageDownlink
+        //        val alarmsUrc: Map<*, *> = simulatorState.getUrcListForDeviceMessage().find { it is Map<*, *> } as
+        // Map<*, *>
+        val alarmsUrc: Map<*, *> = simulatorState.getUrcListForDeviceMessage().find { it is Map<*, *> } as Map<*, *>
+
+        assertThat(dlUrc.dl).isEqualTo(command)
+        assertThat(alarmsUrc["AL$alarmIndex"] as List<*>).containsExactly(0, 500, 1000, 1500, 10)
     }
 
     @Test
@@ -64,8 +64,13 @@ class InfoAlarmsCommandHandlerTest {
 
         commandHandler.handleCommand(command, simulatorState)
 
-        val expectedDownlink = """"INFO:AL7",{"AL7":[0,500,1000,1500,10]}"""
-        assertThat(simulatorState.getUrcListForDeviceMessage()).contains(DeviceMessageDownlink(expectedDownlink))
+        val dlUrc =
+            simulatorState.getUrcListForDeviceMessage().find { it is DeviceMessageDownlink } as DeviceMessageDownlink
+        val alarmsUrc: Map<*, *> = simulatorState.getUrcListForDeviceMessage().find { it is Map<*, *> } as Map<*, *>
+
+        assertThat(dlUrc.dl).isEqualTo(command)
+        assertThat(alarmsUrc).hasSize(1)
+        assertThat(alarmsUrc["AL7"] as List<*>).containsExactly(0, 500, 1000, 1500, 10)
     }
 
     @ParameterizedTest

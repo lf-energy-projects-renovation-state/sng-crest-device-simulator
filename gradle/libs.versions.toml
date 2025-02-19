@@ -18,6 +18,7 @@ commonsCodec = { group = "commons-codec", name = "commons-codec", version.ref = 
 flyway = { group = "org.flywaydb", name = "flyway-database-postgresql" }
 h2 = { group = "com.h2database", name = "h2" }
 jacksonDataformatCbor = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-cbor" }
+jacksonKotlinModule = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin" }
 jakartaXmlBindApi = { group = "jakarta.xml.bind", name = "jakarta.xml.bind-api" }
 junitPlatformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
