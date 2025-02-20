@@ -11,9 +11,9 @@ import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
  * @property fotaMessageCounter the counter used for firmware updates, defaults to 0
  * @property urcs the URCs that will be sent in the next message, defaults to INIT at startup
  */
-class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableList<String> = mutableListOf("INIT")) {
+class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableList<Any> = mutableListOf("INIT")) {
     private val downlinks: MutableList<String> = mutableListOf()
-    private val alarmThresholds: MutableMap<Int, AlarmThresholdValues> = defaultAlarmThresholds()
+    val alarmThresholds: MutableMap<Int, AlarmThresholdValues> = defaultAlarmThresholds()
 
     private fun defaultAlarmThresholds() =
         (0..7).associateWith { AlarmThresholdValues(it, 0, 0, 0, 0, 0) }.toMutableMap()
@@ -25,15 +25,13 @@ class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableL
         downlinks.clear()
     }
 
-    fun addUrc(urc: String) = apply { urcs += urc }
+    fun addUrc(urc: Any) = apply { urcs += urc }
 
     fun addDownlink(downlink: String) = apply { downlinks += downlink }
 
     fun addAlarmThresholds(alarmThresholdValues: AlarmThresholdValues) = apply {
         alarmThresholds[alarmThresholdValues.channel] = alarmThresholdValues
     }
-
-    fun getAlarmThresholds() = alarmThresholds
 
     fun getAlarmThresholds(index: Int) = alarmThresholds[index]
 }
