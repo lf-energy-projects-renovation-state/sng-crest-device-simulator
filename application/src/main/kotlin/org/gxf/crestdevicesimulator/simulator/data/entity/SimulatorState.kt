@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.gxf.crestdevicesimulator.simulator.data.entity
 
+import java.time.Instant
 import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 
 /**
@@ -14,6 +15,12 @@ import org.gxf.crestdevicesimulator.simulator.message.DeviceMessageDownlink
 class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableList<Any> = mutableListOf("INIT")) {
     private val downlinks: MutableList<String> = mutableListOf()
     val alarmThresholds: MutableMap<Int, AlarmThresholdValues> = defaultAlarmThresholds()
+
+    var mem: Int = 0
+        private set
+
+    var tsl: Int = 0
+        private set
 
     private fun defaultAlarmThresholds() =
         (0..7).associateWith { AlarmThresholdValues(it, 0, 0, 0, 0, 0) }.toMutableMap()
@@ -34,4 +41,13 @@ class SimulatorState(var fotaMessageCounter: Int = 0, private val urcs: MutableL
     }
 
     fun getAlarmThresholds(index: Int) = alarmThresholds[index]
+
+    fun requestSucceeded() {
+        mem = 0 // pretend all flash messages have been sent
+        tsl = Instant.now().epochSecond.toInt()
+    }
+
+    fun requestFailed() {
+        mem++
+    }
 }

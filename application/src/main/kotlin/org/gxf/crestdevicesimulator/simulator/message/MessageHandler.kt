@@ -6,6 +6,7 @@ package org.gxf.crestdevicesimulator.simulator.message
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.time.Instant
 import org.eclipse.californium.core.CoapClient
 import org.eclipse.californium.core.CoapResponse
 import org.eclipse.californium.core.coap.MediaTypeRegistry
@@ -43,11 +44,14 @@ class MessageHandler(
             if (response.isSuccess) {
                 applicationEventPublisher.publishEvent(MessageSentEvent(messageToBeSent))
                 immediateResponseRequested = handleResponse(response, simulatorState)
+                simulatorState.requestSucceeded()
             } else {
                 logger.error { "Received error response with ${response.code}" }
+                simulatorState.requestFailed()
             }
         } catch (e: Exception) {
             logger.error(e) { "Exception occurred while trying to send a message." }
+            simulatorState.requestFailed()
         } finally {
             if (coapClient != null) coapClientService.shutdownCoapClient(coapClient)
         }
@@ -59,6 +63,9 @@ class MessageHandler(
         DeviceMessage().apply {
             fmc = simulatorState.fotaMessageCounter
             urc = simulatorState.getUrcListForDeviceMessage()
+            mem = simulatorState.mem
+            ts = Instant.now().epochSecond.toInt()
+            tsl = simulatorState.tsl
         }
 
     fun createRequest(message: DeviceMessage): Request {
