@@ -17,9 +17,19 @@ plugins {
     alias(libs.plugins.spotless)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.eclipse)
+    alias(libs.plugins.gradleWrapperUpgrade)
 }
 
 version = System.getenv("GITHUB_REF_NAME")?.replace("/", "-")?.lowercase() ?: "develop"
+
+wrapperUpgrade {
+    gradle {
+        register("sng-crest-device-simulator") {
+            repo.set("OSGP/sng-crest-device-simulator")
+            baseBranch.set("main")
+        }
+    }
+}
 
 sonar {
     properties {
