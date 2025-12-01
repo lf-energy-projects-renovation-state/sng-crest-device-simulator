@@ -8,7 +8,7 @@ mockk = "1.14.5"
 sonarqube = "6.3.1.5724"
 spotless = "7.2.1"
 spring-boot = "3.5.5"
-springmockk = "4.0.2"
+springmockk = "5.0.1"
 gradleWrapperUpgrade = "0.12"
 
 [libraries]
